@@ -45,6 +45,7 @@ public class Deadwood {
 		setUpGame(players);
 		int dayCount = 1;
 		int playerCount;
+		/* Still in progress ---
 		// loop through whole game
 		while (dayCount < NUMBER_OF_DAYS) {
 			// loop through each day
@@ -150,7 +151,7 @@ public class Deadwood {
 		}
 		System.out.println("The game is ending.");
 		scoring(players);
-		System.out.println("Goodbye.");
+		System.out.println("Goodbye."); */
 		scan.close();
 	}
 
