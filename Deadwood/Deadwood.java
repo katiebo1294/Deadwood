@@ -256,7 +256,7 @@ public class Deadwood {
 				// if they are working a role, prompt them to rehearse or act
 				if (p.getIsWorking()) {
 					System.out.println("You are currently working on the role " + p.getCurrentRole() + " in the scene "
-							+ currentScene.getSceneTitle() + ". Your location is " + currentRoom.getName() + ".");
+							+ currentScene.getTitle() + ". Your location is " + currentRoom.getName() + ".");
 					System.out.println("The scene's budget is " + currentScene.getBudget()
 							+ " and your current number of practice chips is " + p.getNumPracticeChips() + ".");
 					if ((p.getNumPracticeChips() + 1) >= currentScene.getBudget()) {
@@ -343,7 +343,7 @@ public class Deadwood {
 			if (input.equalsIgnoreCase(r.getName().trim())) {
 				player.setCurrentRole(r);
 				System.out.println(
-						"You are now working " + r.getName() + " in the scene " + currentScene.getSceneTitle() + ".");
+						"You are now working " + r.getName() + " in the scene " + currentScene.getTitle() + ".");
 			}
 		}
 		scan.close();
