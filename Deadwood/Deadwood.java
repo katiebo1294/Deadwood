@@ -42,7 +42,7 @@ public class Deadwood {
 		} while (numPlayers < 2 || numPlayers > 8);
 
 		Player[] players = new Player[numPlayers];
-		setUpGame(players);
+		//setUpGame(players);
 		int dayCount = 1;
 		int playerCount;
 		/* Still in progress ---
@@ -152,6 +152,7 @@ public class Deadwood {
 		System.out.println("The game is ending.");
 		scoring(players);
 		System.out.println("Goodbye."); */
+		System.out.println("(rest of the game is still under construction)\nGoodbye.");
 		scan.close();
 	}
 
@@ -177,9 +178,9 @@ public class Deadwood {
 		int numPlayers = players.length;
 		System.out.println("Starting a new game with " + numPlayers + " players.");
 		ROOMS = new Room[12];
-		generateRooms(ROOMS);
+		//generateRooms(ROOMS);
 		SCENES = new Scene[40];
-		generateScenes(SCENES);
+		//generateScenes(SCENES);
 		shuffleDeck(SCENES);
 		BOARD = new Board(ROOMS);
 		generatePlayers(players);
@@ -442,7 +443,6 @@ public class Deadwood {
 
 	/*
 	 * Generates 40 scene cards based on the Deadwood board game's original scenes
-	 */
 	private static void generateScenes(Scene[] scenes) {
 		System.out.println("Generating 40 scene cards...");
 		// create each scene
@@ -712,11 +712,12 @@ public class Deadwood {
 				5, roles);
 		roles.clear();
 	}
+	*/
 
 	/*
 	 * Generates 12 rooms based on the Deadwood board game's original rooms -
 	 * assumes "basic"/default layout
-	 */
+
 	private static void generateRooms(Room[] rooms) {
 		System.out.println("Generating 12 rooms in default configuration...");
 		// initialize each room with name, roles and number of shots
@@ -828,5 +829,5 @@ public class Deadwood {
 		// map each room's name to its location
 		// create a board with these rooms
 	}
-
+	*/
 }

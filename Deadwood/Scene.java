@@ -45,7 +45,7 @@ public class Scene {
         this.budget = budget;
 	}
 	
-    public String setCardImg(String cardImg){
+    public void setCardImg(String cardImg){
         this.cardImg = cardImg;
 	}
 	
