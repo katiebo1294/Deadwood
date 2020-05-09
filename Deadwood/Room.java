@@ -1,24 +1,40 @@
 import java.util.ArrayList;
 
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.Element;
+
 public class Room {
 	
-	private ArrayList<Room> neighbors; //a list of adjacent rooms
+	private ArrayList<String> neighbors; //a list of adjacent rooms
 	private String name;
 	private Scene sceneCard;
 	private ArrayList<Role> roles; //off-card
 	private int totalShots; //1-3
 	private int remainingShots;
-
-	public Room(String name, ArrayList<Role> roles, int totalShots) {
-		this.name = name;
-		this.roles = roles;
-		this.totalShots = totalShots;
-		this.remainingShots = totalShots;
-		neighbors = new ArrayList<Room>();
-	}
 	
+	public Room(Node s) {
+		this.name = ((Element) s).getAttribute("name");
+		NodeList neighbors = s.getFirstChild().getChildNodes();
+		for(int i = 0; i < neighbors.getLength(); i++) {
+			this.neighbors.add(((Element) neighbors.item(i)).getAttribute("name"));
+		}
+		this.totalShots = s.getChildNodes().getLength();
+		this.remainingShots = this.totalShots;
+		NodeList roles = s.getLastChild().getChildNodes();
+		for(int i = 0; i < roles.getLength(); i++) {
+			this.roles.add(new Role(roles.item(i)));
+		}
+	}
+
+	// for the Trailers and Casting Office rooms
+	public Room(Node s, String name) {
+		this.name = name;
+		NodeList roles = s.getFirstChild().getChildNodes();
+	}
+
 	/* Getters */
-	public ArrayList<Room> getNeighbors() {
+	public ArrayList<String> getNeighbors() {
 		return this.neighbors;
 	}
 	
@@ -43,7 +59,7 @@ public class Room {
 	}
 	
 	/* Setters */
-	public void setNeighbor(Room neighbor) {
+	public void setNeighbor(String neighbor) {
 		this.neighbors.add(neighbor);
 	}
 	
@@ -65,9 +81,9 @@ public class Room {
 	
 	/* Lists the name of each adjacent room in this.neighbors in a comma-separated list */
 	public String listNeighbors() {
-		String result = this.getNeighbors().get(0).getName();
+		String result = this.getNeighbors().get(0);
 		for(int i = 1; i < this.getNeighbors().size(); i++) {
-			result += ", " + this.getNeighbors().get(i).getName();
+			result += ", " + this.getNeighbors().get(i);
 		}
 		return result;
 	}

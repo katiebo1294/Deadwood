@@ -6,7 +6,7 @@ public class Player {
 	private int rank;
 	private boolean isWorking; // if they are currently on a role
 	private Role currentRole;
-	private Room location;
+	private String location;
 	private int numPracticeChips;
 	
 	/* Used for modifications to gameplay due to having more or less than 4 players */
@@ -16,7 +16,7 @@ public class Player {
 		this.rank = rank;
 		this.isWorking = false;
 		this.numPracticeChips = 0;
-		this.location = Deadwood.BOARD.getRooms()[Deadwood.roomMap.get(RoomMap.TRAILERS)];
+		this.location = "Trailers";
 	}
 	
 	/* Standard setup for 4 players */
@@ -25,7 +25,7 @@ public class Player {
 		this.numDollars = 0;
 		this.rank = 1;
 		this.isWorking = false;
-		this.location = Deadwood.BOARD.getRooms()[Deadwood.roomMap.get(RoomMap.TRAILERS)];
+		this.location = "Trailer";
 	}
 	
 	/* Getters */
@@ -49,7 +49,7 @@ public class Player {
 		return this.currentRole;
 	}
 	
-	public Room getLocation() {
+	public String getLocation() {
 		return this.location;
 	}
 	
@@ -109,12 +109,9 @@ public class Player {
 		this.currentRole = role;
 	}
 	
-	public int move(Room room) {
+	public int move(String room) {
 		int success = 0;
-		if(this.location.getNeighbors().contains(room)) {
-			this.location = room;
-			success = 1;
-		}
+		// TODO check if the string matches a room the player can move to
 		return success;
 	}
 	

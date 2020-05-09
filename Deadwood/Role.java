@@ -1,20 +1,19 @@
+import org.w3c.dom.Node;
+import org.w3c.dom.Element;
 
 public class Role implements Comparable< Role > {
 
-	private int rank; // 1-6
-	private boolean isWorked; // if the role is currently being worked by a player
 	private String name;
+	private int rank; // 1-6
 	private String line;
+	private boolean isWorked; // if the role is currently being worked by a player
 	private Location location; // scene name or room name
 	private Player actor;
 	
-	public Role(){}
-	public Role(int rank, String name, String line, Location location) {
-		this.rank = rank;
-		this.isWorked = false;
-		this.name = name;
-		this.line = line;
-		this.location = location;
+	public Role(Node role) {
+		this.name = ((Element) role).getAttribute("name");
+		this.rank = Integer.parseInt(((Element) role).getAttribute("level"));
+		this.line = ((Element) role.getLastChild()).getNodeValue();
 	}
 	
 	/* Getters */

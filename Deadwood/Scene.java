@@ -1,22 +1,29 @@
 import java.util.ArrayList;
 
+import org.w3c.dom.NodeList;
+import org.w3c.dom.Node;
+import org.w3c.dom.Element;
+
 public class Scene {
 
-	private int budget; //1-6
 	private String title;
+	private int budget;
+	private String sceneNum;
 	private String desc;
-	private int sceneNum;
-	private String cardImg;
 	private ArrayList<Role> roles;
 	
-	public Scene(){}
-	public Scene(String title, String cardImg, String desc, int sceneNum, int budget, ArrayList<Role> roles) {
-		this.title = title;
-		this.cardImg = cardImg;
-		this.desc = desc;
-		this.sceneNum = sceneNum;
-		this.budget = budget;
-		this.roles = roles;
+	public Scene(Node card) {
+		this.title = ((Element) card).getAttribute("name");
+		this.budget = Integer.parseInt(((Element) card).getAttribute("budget"));
+		Node scene = card.getFirstChild();
+		this.sceneNum = ((Element) scene).getAttribute("number");
+		this.desc = ((Element) scene).getAttribute("desc");
+		NodeList roles = scene.getChildNodes();
+		for(int i = 0; i < roles.getLength(); i++) {
+			if(roles.item(i).getNodeName().equals("part")) {
+				this.roles.add(new Role(roles.item(i)));
+			}
+		}
 	}
 	
 	/* Getters */
@@ -24,9 +31,6 @@ public class Scene {
 		return this.budget;
 	}
 	
-	public String getCardImg(){
-        return this.cardImg;
-	}
 	
 	public String getTitle() {
 		return this.title;
@@ -36,31 +40,11 @@ public class Scene {
 		return this.desc;
 	}
 	
-	public int getSceneNum(int sceneNum){
+	public String getSceneNum(String sceneNum){
         return this.sceneNum;
 	}
 	
-	//Setters
-	public void setBudget(int budget){
-        this.budget = budget;
-	}
-	
-    public void setCardImg(String cardImg){
-        this.cardImg = cardImg;
-	}
-	
-	public void setTitle(String title){
-        this.title = title;
-	}
-	
-	public void setDescription(String desc){
-        this.desc = desc;
-	}
-	
-	public void setSceneNum(int sceneNum){
-        this.sceneNum = sceneNum;
-	}
-	
+	/* Setters */
 	public ArrayList<Role> getRoles() {
 		return this.roles;
 	}

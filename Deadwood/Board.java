@@ -1,13 +1,15 @@
+import java.util.ArrayList;
+
 public  class Board {
 
-	private Room[] rooms;
+	private ArrayList<Room> rooms;
 	
-	public Board(Room[] rooms) {
-		this.rooms = rooms;
+	public Board(ArrayList<Room> ROOMS) {
+		this.rooms = ROOMS;
 	}
 	
 	/* Getters */
-	public Room[] getRooms() {
+	public ArrayList<Room> getRooms() {
 		return this.rooms;
 	}
 	
