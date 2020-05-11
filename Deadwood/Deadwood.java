@@ -1,8 +1,4 @@
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.EnumMap;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -11,33 +7,16 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 import org.w3c.dom.Node;
 import org.w3c.dom.Element;
 
 public class Deadwood {
 
-	private static int NUMBER_OF_DAYS = 4;
-	public static EnumMap<RoomMap, Integer> roomMap = new EnumMap<RoomMap, Integer>(RoomMap.class);
-	public static ArrayList<Room> ROOMS;
+	public static int NUMBER_OF_DAYS = 4;
 	public static Board BOARD;
-	public static ArrayList<Scene> SCENES;
+	public static Scene[] SCENES;
 
 	public static void main(String[] args) throws ParserConfigurationException {
-		// to map each room name to its index in the storage array
-		roomMap.put(RoomMap.TRAINSTATION, 0);
-		roomMap.put(RoomMap.JAIL, 1);
-		roomMap.put(RoomMap.MAINSTREET, 2);
-		roomMap.put(RoomMap.GENERALSTORE, 3);
-		roomMap.put(RoomMap.SALOON, 4);
-		roomMap.put(RoomMap.TRAILERS, 5);
-		roomMap.put(RoomMap.CASTINGOFFICE, 6);
-		roomMap.put(RoomMap.RANCH, 7);
-		roomMap.put(RoomMap.BANK, 8);
-		roomMap.put(RoomMap.SECRETHIDEOUT, 9);
-		roomMap.put(RoomMap.CHURCH, 10);
-		roomMap.put(RoomMap.HOTEL, 11);
 
 		Scanner scan = new Scanner(System.in);
 		String input = "";
@@ -56,7 +35,7 @@ public class Deadwood {
 		Player[] players = new Player[numPlayers];
 		setUpGame(players);
 		int dayCount = 1;
-		int playerCount;
+		int playerCount = 1;
 		/* Still in progress ---
 		// loop through whole game
 		while (dayCount < NUMBER_OF_DAYS) {
@@ -171,14 +150,16 @@ public class Deadwood {
 	private static void endDay(Player[] players, int dayCount) {
 		// end all current roles and move players to Trailers
 		for (Player p : players) {
-			p.move(ROOMS.get(11).getName());
+			p.move(Board.lookUpRoom("Trailers"));
 			p.setCurrentRole(null);
 		}
 		// remove remaining scene card and deal the next 10 scene cards from the deck
 		int deckIndex = (dayCount - 1) * 10;
-		for (Room r : ROOMS) {
-			r.setScene(null);
-			r.setScene(SCENES.get(deckIndex));
+		for (Room r : Board.getRooms()) {
+			if(r instanceof Set) {
+				((Set) r).setScene(null);
+				((Set) r).setScene(SCENES[deckIndex]);
+			}
 		}
 	}
 
@@ -189,13 +170,12 @@ public class Deadwood {
 	private static void setUpGame(Player[] players) throws ParserConfigurationException {
 		int numPlayers = players.length;
 		System.out.println("Starting a new game with " + numPlayers + " players.");
-		ROOMS = parseBoard();
+		parseBoard();
 		SCENES = parseCards();
 		shuffleDeck();
-		BOARD = new Board(ROOMS);
 		generatePlayers(players);
 		endDay(players, 1);
-		for(Room r : ROOMS) {
+		for(Room r : Board.getRooms()) {
 			System.out.println(r.toString());
 		}
 		for(Scene s : SCENES) {
@@ -233,7 +213,7 @@ public class Deadwood {
 	}
 
 	
-	private static void actScene(Player player, Room currentRoom, Scene currentScene) {
+	private static void actScene(Player player, Set currentRoom, Scene currentScene) {
 		int result;
 		result = rollDie() + player.getNumPracticeChips();
 		// act success
@@ -272,7 +252,7 @@ public class Deadwood {
 		}
 	}
 
-	private static void takeRole(Player player, Room currentRoom, Scene currentScene) {
+	private static void takeRole(Player player, Set currentRoom, Scene currentScene) {
 		String input;
 		Scanner scan = new Scanner(System.in);
 		// list available roles, separated by role type (extra or starring)
@@ -299,16 +279,19 @@ public class Deadwood {
 		input = scan.next();
 		for (String room : currentRoom.getNeighbors()) {
 			// match player's input to an available room and move them there
-			if (input.equalsIgnoreCase(room.trim())) {
-				player.move(room);
+			if (input.trim().equalsIgnoreCase(room)) {
+				player.move(Board.lookUpRoom(room));
 				System.out.println("Moved to " + room + ".");
+				currentRoom = player.getLocation();
 			}
 		}
-		// prompt them to take a role at the new location
-		System.out.print("Would you like to take a role? ");
-		input = scan.next();
-		if (input.equalsIgnoreCase("yes".trim())) {
-			takeRole(player, currentRoom, currentRoom.getSceneCard());
+		if(currentRoom instanceof Set) {
+			// prompt them to take a role at the new location
+			System.out.print("Would you like to take a role? ");
+			input = scan.next();
+			if (input.equalsIgnoreCase("yes".trim())) {
+				takeRole(player, ((Set) currentRoom), ((Set) currentRoom).getSceneCard());
+			}
 		}
 		scan.close();
 	}
@@ -317,7 +300,7 @@ public class Deadwood {
 	 * Payout at the end of a scene - assumes there was at least one actor working
 	 * on-the-card
 	 */
-	private static void payout(Room room, Scene scene) {
+	private static void payout(Set room, Scene scene) {
 		// sort the on-card ranks from highest to lowest
 		Role[] orderedRanks = scene.getRoles();
 		Arrays.sort(orderedRanks);
@@ -372,58 +355,48 @@ public class Deadwood {
 		Random rand = new Random();
 		int randomIndex;
 		Scene temp;
-		for (int i = 0; i < SCENES.size(); i++) {
-			randomIndex = rand.nextInt(SCENES.size());
-			temp = SCENES.get(randomIndex);
-			SCENES.set(randomIndex, SCENES.get(i));
-			SCENES.set(i, temp);
+		for (int i = 0; i < SCENES.length; i++) {
+			randomIndex = rand.nextInt(SCENES.length);
+			temp = SCENES[randomIndex];
+			SCENES[randomIndex] = SCENES[i];
+			SCENES[i] = temp;
 		}
 
 	}
 	
-	private static ArrayList<Room> parseBoard() throws ParserConfigurationException {
+	private static void parseBoard() throws ParserConfigurationException {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder builder = factory.newDocumentBuilder();
-		Document sets = null;
-		ArrayList<Room> rooms = new ArrayList<>();
+		Document board = null;
 		
 		try {
-			sets = builder.parse("board.xml");
-			NodeList setList = sets.getElementsByTagName("set");
-			for(int i = 0; i < setList.getLength(); i++) {
-				Node s = setList.item(i);
-				if(s.getNodeType() == Node.ELEMENT_NODE) {
-					rooms.add(new Room((Element) s));
-				}
-			}
-			rooms.add(new Room((Element) sets.getElementsByTagName("trailer").item(0), "Trailers"));
-			rooms.add(new Room((Element) sets.getElementsByTagName("office").item(0), "Casting Office"));
+			board = builder.parse("board.xml");
+			BOARD = new Board((Element) board.getElementsByTagName("board").item(0));
 		} catch (Exception ex) {
 			System.out.println("XML parse failure");
 			ex.printStackTrace();
 		}
-		return rooms;
 	}
 	
-	private static ArrayList<Scene> parseCards() throws ParserConfigurationException {
+	private static Scene[] parseCards() throws ParserConfigurationException {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder builder = factory.newDocumentBuilder();
-		Document cards = null;
-		ArrayList<Scene> scenes = new ArrayList<>();
+		Document cards;
+		Scene[] scenes;
 		
 		try {
 			cards = builder.parse("cards.xml");
-			NodeList cardList = cards.getElementsByTagName("card");
-			for(int i = 0; i < cardList.getLength(); i++) {
-				Node c = cardList.item(i);
-				if(c.getNodeType() == Node.ELEMENT_NODE) {
-					scenes.add(new Scene((Element) c));
+			scenes = new Scene[cards.getElementsByTagName("card").getLength()];
+			for(int i = 0; i < scenes.length; i++) {
+				if(cards.getElementsByTagName("card").item(i).getNodeType() == Node.ELEMENT_NODE) {
+					scenes[i] = new Scene((Element) cards.getElementsByTagName("card").item(i));
 				}
 			}
+			return scenes;
 		} catch (Exception ex) {
 			System.out.println("XML parse failure");
 			ex.printStackTrace();
 		}
-		return scenes;
+		return null;
 	}
 }

@@ -12,7 +12,7 @@ public class Scene {
 		this.title = card.getAttribute("name");
 		this.budget = Integer.parseInt(card.getAttribute("budget"));
 		this.sceneNum = ((Element) card.getElementsByTagName("scene").item(0)).getAttribute("number");
-		this.desc = ((Element) card.getElementsByTagName("scene").item(0)).getNodeValue();
+		this.desc = ((Element) card.getElementsByTagName("scene").item(0)).getTextContent().trim();
 		this.roles = new Role[card.getElementsByTagName("part").getLength()];
 		for(int i = 0; i < roles.length; i++) {
 			this.roles[i] = new Role(((Element) card.getElementsByTagName("part").item(i)));
@@ -79,6 +79,6 @@ public class Scene {
 	}
 	
 	public String toString() {
-		return "title = " + this.title + ", budget = " + this.budget + ", description = \"Scene " + this.sceneNum + ": " + this.desc + ", roles = " + this.listRoles();
+		return "title = " + this.title + ", budget = " + this.budget + ", description = \"Scene " + this.sceneNum + ": " + this.desc + "\", roles = " + this.listRoles();
 	}
 }
