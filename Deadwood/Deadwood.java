@@ -174,13 +174,14 @@ public class Deadwood {
 		SCENES = parseCards();
 		shuffleDeck();
 		generatePlayers(players);
-		endDay(players, 1);
+		endDay(players, 1); /*
 		for(Room r : Board.getRooms()) {
 			System.out.println(r.toString());
 		}
 		for(Scene s : SCENES) {
 			System.out.println(s.toString());
-		}
+		} */
+		System.out.println(CastingOffice.displayPriceList());
 	}
 
 	/*
