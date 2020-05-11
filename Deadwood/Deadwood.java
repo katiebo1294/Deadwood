@@ -1,5 +1,6 @@
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.Random;
@@ -23,7 +24,7 @@ public class Deadwood {
 	public static Board BOARD;
 	public static ArrayList<Scene> SCENES;
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws ParserConfigurationException {
 		// to map each room name to its index in the storage array
 		roomMap.put(RoomMap.TRAINSTATION, 0);
 		roomMap.put(RoomMap.JAIL, 1);
@@ -53,7 +54,7 @@ public class Deadwood {
 		} while (numPlayers < 2 || numPlayers > 8);
 
 		Player[] players = new Player[numPlayers];
-		//setUpGame(players);
+		setUpGame(players);
 		int dayCount = 1;
 		int playerCount;
 		/* Still in progress ---
@@ -194,6 +195,12 @@ public class Deadwood {
 		BOARD = new Board(ROOMS);
 		generatePlayers(players);
 		endDay(players, 1);
+		for(Room r : ROOMS) {
+			System.out.println(r.toString());
+		}
+		for(Scene s : SCENES) {
+			System.out.println(s.toString());
+		}
 	}
 
 	/*
@@ -234,12 +241,14 @@ public class Deadwood {
 			System.out.println("Nice job! You did it!");
 			//player.getLocation().removeShot();
 			// if they are working a role off-the-card, they get 1 dollar and 1 credit
-			if (currentRoom.getRoles().contains(player.getCurrentRole())) {
-				player.addDollars(1);
-				player.addCredits(1);
+			for(Role role : currentRoom.getRoles()) {
+				if(player.getCurrentRole() == role) {
+					player.addCredits(1);
+					player.addDollars(1);
 				// if they are working a role on-the-card, they get 2 credits
-			} else {
+				} else {
 				player.addCredits(2);
+				}
 			}
 			// if the last shot marker was removed, proceed to payout
 			if (currentRoom.getRemainingShots() == 0) {
@@ -255,8 +264,10 @@ public class Deadwood {
 			System.out.println("Oops! You failed to perform the scene. Try again next round.");
 			// if they are working on a role off-the-card, they receive 1 dollar (otherwise
 			// no reward)
-			if (currentRoom.getRoles().contains(player.getCurrentRole())) {
-				player.addDollars(1);
+			for(Role role : currentRoom.getRoles()) {
+				if(player.getCurrentRole() == role) {
+					player.addDollars(1);
+				}
 			}
 		}
 	}
@@ -265,8 +276,8 @@ public class Deadwood {
 		String input;
 		Scanner scan = new Scanner(System.in);
 		// list available roles, separated by role type (extra or starring)
-		System.out.println("The available off-the-card roles are: " + currentRoom.listRoles(player.getRank()));
-		System.out.println("The available on-the-card roles are: " + currentScene.listRoles(player.getRank()));
+		System.out.println("The available off-the-card roles are: " + currentRoom.listAvailableRoles(player.getRank()));
+		System.out.println("The available on-the-card roles are: " + currentScene.listAvailableRoles(player.getRank()));
 		input = scan.next();
 		for (Role r : currentRoom.getRoles()) {
 			// match player's input to an available role and assign them to that role
@@ -308,8 +319,8 @@ public class Deadwood {
 	 */
 	private static void payout(Room room, Scene scene) {
 		// sort the on-card ranks from highest to lowest
-		ArrayList<Role> orderedRanks = scene.getRoles();
-		Collections.sort(orderedRanks);
+		Role[] orderedRanks = scene.getRoles();
+		Arrays.sort(orderedRanks);
 		// roll the die as many times as the budget ($4 million budget = 4 die rolls)
 		int numRolls = scene.getBudget();
 		int result = 0;
@@ -382,11 +393,11 @@ public class Deadwood {
 			for(int i = 0; i < setList.getLength(); i++) {
 				Node s = setList.item(i);
 				if(s.getNodeType() == Node.ELEMENT_NODE) {
-					rooms.add(new Room(s));
+					rooms.add(new Room((Element) s));
 				}
 			}
-			rooms.add(new Room(sets.getElementsByTagName("trailer").item(0), ((Element) sets.getElementsByTagName("trailer").item(0)).getAttribute("name")));
-			rooms.add(new Room(sets.getElementsByTagName("office").item(0)));
+			rooms.add(new Room((Element) sets.getElementsByTagName("trailer").item(0), "Trailers"));
+			rooms.add(new Room((Element) sets.getElementsByTagName("office").item(0), "Casting Office"));
 		} catch (Exception ex) {
 			System.out.println("XML parse failure");
 			ex.printStackTrace();
@@ -406,7 +417,7 @@ public class Deadwood {
 			for(int i = 0; i < cardList.getLength(); i++) {
 				Node c = cardList.item(i);
 				if(c.getNodeType() == Node.ELEMENT_NODE) {
-					scenes.add(new Scene(c));
+					scenes.add(new Scene((Element) c));
 				}
 			}
 		} catch (Exception ex) {

@@ -1,7 +1,3 @@
-import java.util.ArrayList;
-
-import org.w3c.dom.NodeList;
-import org.w3c.dom.Node;
 import org.w3c.dom.Element;
 
 public class Scene {
@@ -10,19 +6,16 @@ public class Scene {
 	private int budget;
 	private String sceneNum;
 	private String desc;
-	private ArrayList<Role> roles;
+	private Role[] roles;
 	
-	public Scene(Node card) {
-		this.title = ((Element) card).getAttribute("name");
-		this.budget = Integer.parseInt(((Element) card).getAttribute("budget"));
-		Node scene = card.getFirstChild();
-		this.sceneNum = ((Element) scene).getAttribute("number");
-		this.desc = ((Element) scene).getAttribute("desc");
-		NodeList roles = scene.getChildNodes();
-		for(int i = 0; i < roles.getLength(); i++) {
-			if(roles.item(i).getNodeName().equals("part")) {
-				this.roles.add(new Role(roles.item(i)));
-			}
+	public Scene(Element card) {
+		this.title = card.getAttribute("name");
+		this.budget = Integer.parseInt(card.getAttribute("budget"));
+		this.sceneNum = ((Element) card.getElementsByTagName("scene").item(0)).getAttribute("number");
+		this.desc = ((Element) card.getElementsByTagName("scene").item(0)).getNodeValue();
+		this.roles = new Role[card.getElementsByTagName("part").getLength()];
+		for(int i = 0; i < roles.length; i++) {
+			this.roles[i] = new Role(((Element) card.getElementsByTagName("part").item(i)));
 		}
 	}
 	
@@ -45,12 +38,8 @@ public class Scene {
 	}
 	
 	/* Setters */
-	public ArrayList<Role> getRoles() {
+	public Role[] getRoles() {
 		return this.roles;
-	}
-	
-	public void setRoles(ArrayList<Role> roles){
-        this.roles = roles;
 	}
 	
 	public boolean actorsOnCard() {
@@ -63,17 +52,33 @@ public class Scene {
 		return result;
 	}
 	
-	/* Lists the name of each role in this.roles in a comma-separated list */
-	public String listRoles(int rank) {
+	public String listAvailableRoles(int rank) {
 		String result = "";
-		if(this.getRoles().get(0).getRank() <= rank) {
-			result = this.getRoles().get(0).getName();
+		if(this.getRoles()[0].getRank() <= rank) {
+			result = this.getRoles()[0].getName();
 		}
-		for(int i = 1; i < this.getRoles().size(); i++) {
-			if(this.getRoles().get(i).getRank() <= rank) {
-				result += ", " + this.getRoles().get(i).getName();
+		for(int i = 1; i < this.getRoles().length; i++) {
+			if(this.getRoles()[0].getRank() <= rank) {
+				result += ", " + this.getRoles()[0].getName();
 			}
 		}
 		return result;
+	}
+	
+	public String listRoles() {
+		if(this.getRoles().length > 0) {
+			String result = "[" + this.getRoles()[0].toString();
+			for(int i = 1; i < this.getRoles().length; i++) {
+				result += ", " + this.getRoles()[i].toString();
+			}
+			result += "]";
+			return result;
+		} else {
+			return "[none]";
+		}
+	}
+	
+	public String toString() {
+		return "title = " + this.title + ", budget = " + this.budget + ", description = \"Scene " + this.sceneNum + ": " + this.desc + ", roles = " + this.listRoles();
 	}
 }

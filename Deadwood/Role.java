@@ -13,7 +13,7 @@ public class Role implements Comparable< Role > {
 	public Role(Node role) {
 		this.name = ((Element) role).getAttribute("name");
 		this.rank = Integer.parseInt(((Element) role).getAttribute("level"));
-		this.line = ((Element) role.getLastChild()).getNodeValue();
+		this.line = "\"" + ((Element) role).getElementsByTagName("line").item(0).getTextContent() + "\"";
 	}
 	
 	/* Getters */
@@ -67,6 +67,10 @@ public class Role implements Comparable< Role > {
 	@Override
 	public int compareTo(Role r) {
 		return r.getRank()-this.rank;
-	} 
+	}
+	
+	public String toString() {
+		return "{name = " + this.name + ", rank = " + this.rank + ", line = " + this.line + "}";
+	}
 
 }
