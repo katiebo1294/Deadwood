@@ -89,28 +89,60 @@ public class Deadwood {
 										}
 								}
 								if(!match) {
-									System.out.println("That is not a place you can move to.");
+									System.out.println("That is not a place you can move to. Please try again.");
 								}
 							} else if (input.equalsIgnoreCase("rehearse")) {
 								if (currentPlayer.getIsWorking()) {
 									// rehearse
-									// give related info
+									currentPlayer.rehearse();
+									System.out.println("You now have " + currentPlayer.getNumPracticeChips() + " rehearsal chips.");
+									//end turn
 									break;
 								} else {
 									System.out.println("You must be working a role in order to rehearse.");
 								}
 							} else if (input.equalsIgnoreCase("act")) {
 								if (currentPlayer.getIsWorking()) {
-									// act
-									// give related info
+									actScene(currentPlayer, currentRoom, currentScene);
 									break;
 								} else {
 									System.out.println("You must be working a role in order to act.");
 								}
 							} else if (input.equalsIgnoreCase("upgrade")) {
 								if (currentRoom.getName().equals("Casting Office")) {
-									// upgrade role (if they can afford it)
-									// show current and target rank
+									boolean chooseUpgrade = false;
+									
+									displayPriceList();
+									System.out.println();
+									System.out.println("Current Rank: " + currentPlayer.getRank());
+									System.out.println("You have: " + currentPlayer.getNumDollars() + " Dollars");
+									System.out.println("          " + currentPlayer.getNumCredits() + " Credits"); 
+									
+									while(chooseUpgrade == false){
+										System.out.println("What rank would you like to upgrade to? (If you no longer want to upgrade, enter your current rank)");
+										System.out.print("Desired Rank: ");
+										input = scan.nextInt();
+										
+										if(input < currentPlayer.getRank()){					
+											System.out.println("Sorry, you cannot downgrade");
+										} else if(input == currentPlayer.getRank()){
+										
+											System.out.println("No upgrade");
+											chooseUpgrade = true;
+											
+										} else if(input > currentPlayer.getRank()){
+										
+											boolean canUpgrade = upgradePlayerRank(input, currentPlayer);
+											if(canUpgrade){
+												//Player has upgraded
+												chooseUpgrade = true;
+											} else{
+												//Player cannot upgrade to desired rank, reprompted
+												System.out.println("You cannot upgrade to that rank");
+											}
+										}
+									}
+
 									break;
 								} else {
 									System.out.println(
@@ -330,6 +362,79 @@ public class Deadwood {
 	private static int rollDie() {
 		return (int) ((Math.random() * 6) + 1);
 	}
+	
+	/*Returns whether or not Player is allowed to upgrade to desired rank; upgrades if true*/
+	private static boolean upgradePlayerRank(int desired, Player currentPlayer) {
+		int cash = currentPlayer.getNumDollars();
+		int cred = currentPlayer.getNumCredits();
+		String payment = "";
+		Scanner scan = new Scanner(System.in);
+		boolean CoD = false;
+		
+		while(CoD == false) {
+			System.out.print("What would you like to use as payment for the upgrade? (enter 'dollars' or 'credits'): ");
+			payment = scan.next();
+			if(payment.equalsIgnoreCase("dollars") || payment.equalsIgnoreCase("credits")) {
+				CoD = true;
+			} else {
+				System.out.println("Please enter valid payment type ('dollars' or 'credits')");
+			}
+		}
+					
+			if(desired == 2) {
+				if(cash >= 4 && payment.equalsIgnoreCase("dollars")) {
+					currentPlayer.upgradeRank(2);
+					return true;
+				} else if(cred >= 5 && payment.equalsIgnoreCase("credits")) {
+					currentPlayer.upgradeRank(2);
+					return true;
+				} else {
+					return false;
+				}				
+			} else if(desired == 3) {				
+				if(cash >= 10 && payment.equalsIgnoreCase("dollars")) {
+					currentPlayer.upgradeRank(3);
+					return true;
+				} else if(cred >= 10 && payment.equalsIgnoreCase("credits")) {
+					currentPlayer.upgradeRank(3);
+					return true;
+				} else {
+					return false;
+				}				
+			} else if(desired == 4) {				
+				if(cash >= 18 && payment.equalsIgnoreCase("dollars")) {
+					currentPlayer.upgradeRank(4);
+					return true;
+				} else if(cred >= 15 && payment.equalsIgnoreCase("credits")) {
+					currentPlayer.upgradeRank(4);
+					return true;
+				} else {
+					return false;
+				}				
+			} else if(desired == 5) {				
+				if(cash >= 28 && payment.equalsIgnoreCase("dollars")) {
+					currentPlayer.upgradeRank(5);
+					return true;
+				} else if(cred >= 20 && payment.equalsIgnoreCase("credits")) {
+					currentPlayer.upgradeRank(5);
+					return true;
+				} else {
+					return false;
+				}				
+			} else if(desired == 6) {				
+				if(cash >= 40 && payment.equalsIgnoreCase("dollars")) {
+					currentPlayer.upgradeRank(6);
+					return true;
+				} else if(cred >= 25 && payment.equalsIgnoreCase("credits")) {
+					currentPlayer.upgradeRank(6);
+					return true;
+				} else {
+					return false;
+				}
+			}			
+			return false;		
+		}
+	
 
 	/*
 	 * For scoring at the end of the game: credits + dollars + five times your rank
