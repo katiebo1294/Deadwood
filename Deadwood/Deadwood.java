@@ -111,6 +111,7 @@ public class Deadwood {
 							} else if (input.equalsIgnoreCase("upgrade")) {
 								if (currentRoom.getName().equals("Casting Office")) {
 									boolean chooseUpgrade = false;
+									int rankNum = 0;
 									
 									displayPriceList();
 									System.out.println();
@@ -119,26 +120,35 @@ public class Deadwood {
 									System.out.println("          " + currentPlayer.getNumCredits() + " Credits"); 
 									
 									while(chooseUpgrade == false){
-										System.out.println("What rank would you like to upgrade to? (If you no longer want to upgrade, enter your current rank)");
-										System.out.print("Desired Rank: ");
-										input = scan.nextInt();
+									
+										while (rankNum < 2 || rankNum > 6){
+											System.out.println("What rank would you like to upgrade to? (If you no longer want to upgrade, enter your current rank)");
+											System.out.print("Desired Rank: ");
+											while(!scan.hasNextInt()){
+												System.out.println("Please enter a valid rank (2-6));
+												input = scan.nextInt();
+											}
+											rankNum = scan.nextInt();
+										} 
 										
-										if(input < currentPlayer.getRank()){					
+										if(rankNum < currentPlayer.getRank()){					
 											System.out.println("Sorry, you cannot downgrade");
-										} else if(input == currentPlayer.getRank()){
+											rankNum = 0;
+										} else if(rankNum == currentPlayer.getRank()){
 										
 											System.out.println("No upgrade");
 											chooseUpgrade = true;
 											
-										} else if(input > currentPlayer.getRank()){
+										} else if(rankNum > currentPlayer.getRank()){
 										
-											boolean canUpgrade = upgradePlayerRank(input, currentPlayer);
+											boolean canUpgrade = upgradePlayerRank(rankNum, currentPlayer);
 											if(canUpgrade){
 												//Player has upgraded
 												chooseUpgrade = true;
 											} else{
 												//Player cannot upgrade to desired rank, reprompted
 												System.out.println("You cannot upgrade to that rank");
+												rankNum = 0;
 											}
 										}
 									}
@@ -153,8 +163,26 @@ public class Deadwood {
 								if (currentPlayer.getIsWorking()) {
 									System.out.println("You are already working "
 											+ currentPlayer.getCurrentRole().getName() + ".");
+								} else if(currentPlayer.listAvailableRoles(currentPlayer.getRank()) == NULL){
+									System.out.println("Sorry, there are no roles to take here.");
 								} else {
+									boolean availableRole = false;
 									// show available roles (only within their rank)
+									 String desiredRole = "";	
+									 String listOfRoles = currentPlayer.listAvailableRoles(currentPlayer.getRank());
+									 while(availableRole == false){
+									 	System.out.println(listOfRoles);
+									 	System.out.println("Which role would you like to take?");
+									 	desiredRole = scan.nextLine();
+									 	//need to ignore upper/lowercase
+									 	if(!listOfRoles.contains(desiredRole)){
+									 		System.out.println("Please choose a role from the list");
+									 	} else{
+									 		availableRole = true;
+									 	}
+									 }
+									 
+									 currentPlayer.setCurrentRole(desiredRole); //currently passing in string
 									// set player's current role to the one they choose
 									break;
 								}
