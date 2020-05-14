@@ -16,6 +16,7 @@ public class Deadwood {
 	public static Board BOARD;
 	public static Scene[] SCENES;
 
+
 	public static void main(String[] args) throws ParserConfigurationException {
 
 		Scanner scan = new Scanner(System.in);
@@ -93,11 +94,12 @@ public class Deadwood {
 								}
 							} else if (input.equalsIgnoreCase("rehearse")) {
 								if (currentPlayer.getIsWorking()) {
-									// rehearse
-									currentPlayer.rehearse();
-									System.out.println("You now have " + currentPlayer.getNumPracticeChips() + " rehearsal chips.");
-									//end turn
-									break;
+									if(currentPlayer.getBudget() + currentPlayer.getNumPracticeChips() < 6){
+										currentPlayer.rehearse();
+										System.out.println("You now have " + currentPlayer.getNumPracticeChips() + " rehearsal chips.");
+									} else {
+										System.out.println("You are guarenteed to succeed. Go Act!");
+									}
 								} else {
 									System.out.println("You must be working a role in order to rehearse.");
 								}
@@ -163,13 +165,13 @@ public class Deadwood {
 								if (currentPlayer.getIsWorking()) {
 									System.out.println("You are already working "
 											+ currentPlayer.getCurrentRole().getName() + ".");
-								} else if(currentPlayer.listAvailableRoles(currentPlayer.getRank()) == NULL){
+								} else if(currentScene.listAvailableRoles(currentPlayer.getRank()) == NULL){
 									System.out.println("Sorry, there are no roles to take here.");
 								} else {
 									boolean availableRole = false;
-									// show available roles (only within their rank)
+									
 									 String desiredRole = "";	
-									 String listOfRoles = currentPlayer.listAvailableRoles(currentPlayer.getRank());
+									 String listOfRoles = currentScene.listAvailableRoles(currentPlayer.getRank());
 									 while(availableRole == false){
 									 	System.out.println(listOfRoles);
 									 	System.out.println("Which role would you like to take?");
@@ -187,9 +189,23 @@ public class Deadwood {
 									break;
 								}
 							} else {
-								// error msg
-								// give command options (only ones that apply specifically to this player during
-								// this turn)
+							
+								System.out.println("Please enter a valid command");
+								System.out.println("You are able to:");
+								if(currentPlayer.getIsWorking()){
+									if(currentScene.getBudget() + currentPlayer.getNumPracticeChips() < 6){
+										System.out.println("-> Rehearse");
+									} 
+									System.out.println("-> Act");
+								} else{
+									System.out.println("-> Move");
+									if(currentScene.listAvailableRoles(currentPlayer.getRank()) != NULL){
+										System.out.println("-> Take Role");
+									}
+									if(currentPlayer.getRank() != 6 && (currentPlayer.getLocation().equals("Casting Office"))){
+										System.out.println("-> Upgrade");
+									}
+								}
 							}
 						} while (!input.equalsIgnoreCase("end".trim()));
 						playerCount++;
@@ -412,9 +428,11 @@ public class Deadwood {
 			if(desired == 2) {
 				if(cash >= 4 && payment.equalsIgnoreCase("dollars")) {
 					currentPlayer.upgradeRank(2);
+					currentPlayer.modifyDollars(4);
 					return true;
 				} else if(cred >= 5 && payment.equalsIgnoreCase("credits")) {
 					currentPlayer.upgradeRank(2);
+					currentPlayer.modifyCredits(5);
 					return true;
 				} else {
 					return false;
@@ -422,9 +440,11 @@ public class Deadwood {
 			} else if(desired == 3) {				
 				if(cash >= 10 && payment.equalsIgnoreCase("dollars")) {
 					currentPlayer.upgradeRank(3);
+					currentPlayer.modifyDollars(10);
 					return true;
 				} else if(cred >= 10 && payment.equalsIgnoreCase("credits")) {
 					currentPlayer.upgradeRank(3);
+					currentPlayer.modifyCredits(10);
 					return true;
 				} else {
 					return false;
@@ -432,9 +452,11 @@ public class Deadwood {
 			} else if(desired == 4) {				
 				if(cash >= 18 && payment.equalsIgnoreCase("dollars")) {
 					currentPlayer.upgradeRank(4);
+					currentPlayer.modifyDollars(18);
 					return true;
 				} else if(cred >= 15 && payment.equalsIgnoreCase("credits")) {
 					currentPlayer.upgradeRank(4);
+					currentPlayer.modifyCredits(15);
 					return true;
 				} else {
 					return false;
@@ -442,9 +464,11 @@ public class Deadwood {
 			} else if(desired == 5) {				
 				if(cash >= 28 && payment.equalsIgnoreCase("dollars")) {
 					currentPlayer.upgradeRank(5);
+					currentPlayer.modifyDollars(28);
 					return true;
 				} else if(cred >= 20 && payment.equalsIgnoreCase("credits")) {
 					currentPlayer.upgradeRank(5);
+					currentPlayer.modifyCredits(20);
 					return true;
 				} else {
 					return false;
@@ -452,9 +476,11 @@ public class Deadwood {
 			} else if(desired == 6) {				
 				if(cash >= 40 && payment.equalsIgnoreCase("dollars")) {
 					currentPlayer.upgradeRank(6);
+					currentPlayer.modifyDollars(40);
 					return true;
 				} else if(cred >= 25 && payment.equalsIgnoreCase("credits")) {
 					currentPlayer.upgradeRank(6);
+					currentPlayer.modifyCredits(25);
 					return true;
 				} else {
 					return false;

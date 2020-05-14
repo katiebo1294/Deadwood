@@ -124,4 +124,13 @@ public class Player {
 		this.numPracticeChips++;
 	}
 	
+	public void modifyDollars(int dollars) {
+		this.numDollars = this.numDollars - dollars;
+	}
+	
+	public void modifyCredits(int credits) {
+		this.numCredits = this.numCredits - credits;
+	}
+	
+	
 }

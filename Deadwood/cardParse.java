@@ -16,13 +16,13 @@ public class cardParse{
         return this.allCards;
     }
 
-     public Document getDocFromFile(String filename) throws ParserConfigurationException {
+     public Document getDocFromFile() throws ParserConfigurationException {
         {
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
             DocumentBuilder db = dbf.newDocumentBuilder();
             Document doc = null;
             try {
-                doc = db.parse(filename);
+                doc = db.parse("cards.xml");
             } catch (Exception ex) {
                 System.out.println("XML parse failure");
                 ex.printStackTrace();
@@ -48,8 +48,8 @@ public class cardParse{
             curCard.setTitle(cardTitle);
             
             //set card img
-            String cardImg = card.getAttributes().getNamedItem("img").getNodeValue();
-            curCard.setCardImg(cardImg);
+//            String cardImg = card.getAttributes().getNamedItem("img").getNodeValue();
+//            curCard.setCardImg(cardImg);
             
             //set budget
             String budget = card.getAttributes().getNamedItem("budget").getNodeValue();
