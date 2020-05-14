@@ -94,7 +94,7 @@ public class Deadwood {
 								}
 							} else if (input.equalsIgnoreCase("rehearse")) {
 								if (currentPlayer.getIsWorking()) {
-									if(currentPlayer.getBudget() + currentPlayer.getNumPracticeChips() < 6){
+									if(currentScene.getBudget() + currentPlayer.getNumPracticeChips() < 6){
 										currentPlayer.rehearse();
 										System.out.println("You now have " + currentPlayer.getNumPracticeChips() + " rehearsal chips.");
 									} else {
@@ -115,7 +115,8 @@ public class Deadwood {
 									boolean chooseUpgrade = false;
 									int rankNum = 0;
 									
-									displayPriceList();
+									String priceList = currentRoom.displayPriceList();
+									System.out.println(priceList);
 									System.out.println();
 									System.out.println("Current Rank: " + currentPlayer.getRank());
 									System.out.println("You have: " + currentPlayer.getNumDollars() + " Dollars");
@@ -127,8 +128,8 @@ public class Deadwood {
 											System.out.println("What rank would you like to upgrade to? (If you no longer want to upgrade, enter your current rank)");
 											System.out.print("Desired Rank: ");
 											while(!scan.hasNextInt()){
-												System.out.println("Please enter a valid rank (2-6));
-												input = scan.nextInt();
+												System.out.println("Please enter a valid rank (2-6)");
+												rankNum = scan.nextInt();
 											}
 											rankNum = scan.nextInt();
 										} 
@@ -162,16 +163,16 @@ public class Deadwood {
 													+ currentRoom.getName() + ".");
 								}
 							} else if (input.equalsIgnoreCase("take role")) {
+								String listOfRoles = currentScene.listAvailableRoles(currentPlayer.getRank());
 								if (currentPlayer.getIsWorking()) {
 									System.out.println("You are already working "
 											+ currentPlayer.getCurrentRole().getName() + ".");
-								} else if(currentScene.listAvailableRoles(currentPlayer.getRank()) == NULL){
+								} else if(listOfRoles == null){
 									System.out.println("Sorry, there are no roles to take here.");
 								} else {
 									boolean availableRole = false;
 									
 									 String desiredRole = "";	
-									 String listOfRoles = currentScene.listAvailableRoles(currentPlayer.getRank());
 									 while(availableRole == false){
 									 	System.out.println(listOfRoles);
 									 	System.out.println("Which role would you like to take?");
@@ -189,7 +190,7 @@ public class Deadwood {
 									break;
 								}
 							} else {
-							
+								String listOfRoles = currentScene.listAvailableRoles(currentPlayer.getRank());
 								System.out.println("Please enter a valid command");
 								System.out.println("You are able to:");
 								if(currentPlayer.getIsWorking()){
@@ -199,10 +200,10 @@ public class Deadwood {
 									System.out.println("-> Act");
 								} else{
 									System.out.println("-> Move");
-									if(currentScene.listAvailableRoles(currentPlayer.getRank()) != NULL){
+									if(listOfRoles != null){
 										System.out.println("-> Take Role");
 									}
-									if(currentPlayer.getRank() != 6 && (currentPlayer.getLocation().equals("Casting Office"))){
+									if(currentPlayer.getRank() != 6 && (currentRoom.getName().equals("Casting Office"))){
 										System.out.println("-> Upgrade");
 									}
 								}
