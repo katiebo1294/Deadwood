@@ -56,7 +56,7 @@ public class Set extends Room {
 		this.sceneCard = null;
 	}
 	
-	// Lists the name of each role in this.roles in a comma-separated list
+	// Lists the name of each role in this.roles in a comma-separated list that is not below the given rank
 	public String listAvailableRoles(int rank) {
 		String result = "";
 		if(this.roles[0].getRank() <= rank) {
@@ -68,22 +68,5 @@ public class Set extends Room {
 			}
 		}
 		return result;
-	}
-	
-	public String listRoles() {
-		if(this.getRoles().length > 0) {
-			String result = "[" + this.roles[0].toString();
-			for(int i = 1; i < this.roles.length; i++) {
-				result += ", " + this.roles[i].toString();
-			}
-			result += "]";
-			return result;
-		} else {
-			return "[none]";
-		}
-	}
-	
-	public String toString() {
-		 return "name = '" + this.name + "', neighbors = " + super.listNeighbors() + ", roles = " + this.listRoles() + ", total shots = " + this.totalShots;
 	}
 }

@@ -7,7 +7,7 @@ public class Role implements Comparable< Role > {
 	private int rank; // 1-6
 	private String line;
 	private boolean isWorked; // if the role is currently being worked by a player
-	private Location location; // scene name or room name
+	private String location; // scene name or room name
 	private Player actor;
 	
 	public Role(Node role) {
@@ -20,40 +20,27 @@ public class Role implements Comparable< Role > {
 	public int getRank() {
 		return this.rank;
 	}
-	public void setRank(int rank){
+	public void setRank(int rank) {
         this.rank = rank;
 	}
 	
 	public boolean getIsWorked() {
 		return this.isWorked;
 	}
-	public void setIsWorked(boolean isWorked){
-        this.isWorked = isWorked;
+	public void setIsWorked() {
+        this.isWorked = !isWorked;
 	}
 	public String getName() {
 		return this.name;
-	}
-	
-	public void setName(String name){
-        this.name = name;
 	}
 	
 	public String getLine() {
 		return this.line;
 	}
 	
-	public void setLine(String line){
-        this.line = line;
-	}
-	
-	public Location getLocation() {
+	public String getLocation() {
 		return this.location;
 	}
-	
-	public void setLocation(Location location){
-        this.location = location;
-	}
-	
 	
 	public Player getActor() {
 		return this.actor;
@@ -67,10 +54,6 @@ public class Role implements Comparable< Role > {
 	@Override
 	public int compareTo(Role r) {
 		return r.getRank()-this.rank;
-	}
-	
-	public String toString() {
-		return "{name = " + this.name + ", rank = " + this.rank + ", line = " + this.line + "}";
 	}
 
 }

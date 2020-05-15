@@ -6,7 +6,7 @@ public class Player {
 	private int rank;
 	private boolean isWorking; // if they are currently on a role
 	private Role currentRole;
-	private Room location;
+	private Room room;
 	private int numPracticeChips;
 	
 	/* Used for modifications to gameplay due to having more or less than 4 players */
@@ -16,7 +16,7 @@ public class Player {
 		this.rank = rank;
 		this.isWorking = false;
 		this.numPracticeChips = 0;
-		this.location = Board.lookUpRoom("Trailers");
+		this.room = Board.lookUpRoom("Trailers");
 	}
 	
 	/* Standard setup for 4 players */
@@ -25,7 +25,7 @@ public class Player {
 		this.numDollars = 0;
 		this.rank = 1;
 		this.isWorking = false;
-		this.location = Board.lookUpRoom("Trailers");
+		this.room = Board.lookUpRoom("Trailers");
 	}
 	
 	/* Getters */
@@ -49,8 +49,8 @@ public class Player {
 		return this.currentRole;
 	}
 	
-	public Room getLocation() {
-		return this.location;
+	public Room getRoom() {
+		return this.room;
 	}
 	
 	public int getNumPracticeChips() {
@@ -67,33 +67,12 @@ public class Player {
 	}
 	
 	// based on the original Deadwood boardgame's price list for upgrading rank
-	public int upgradeRank(int rank) {
-		int success = 0;
-		if(rank == 2) {
-			if(this.numCredits >= 5 || this.numDollars >= 4) {
-				success = 1;
-				this.rank = 2;
-			}
-		} else if(rank == 3) {
-			if(this.numCredits >= 10 || this.numDollars >= 10) {
-				success = 1;
-				this.rank = 3;
-			}
-		} else if(rank == 4) {
-			if(this.numCredits >= 15 || this.numDollars >= 18) {
-				success = 1;
-				this.rank = 4;
-			}
-		} else if(rank == 5) {
-			if(this.numCredits >= 20 || this.numDollars >= 28) {
-				success = 1;
-				this.rank = 5;
-			}
-		} else if(rank == 6) {
-			if(this.numCredits >= 25 || this.numDollars >= 40) {
-				success = 1;
-				this.rank = 6;
-			}
+	public boolean upgradeRank(int rank) {
+		boolean success = false;
+		int[][]  priceList = CastingOffice.getPriceList();
+		if(this.numDollars >= priceList[rank-2][0] || this.numCredits >= priceList[rank-2][1]) {
+			this.rank = rank;
+			success = true;
 		}
 		return success;
 	}
@@ -109,12 +88,12 @@ public class Player {
 		this.currentRole = role;
 	}
 	
-	public int move(Room room) {
-		int success = 0;
-		for(String neighbor : this.location.getNeighbors()) {
+	public boolean move(Room room) {
+		boolean success = false;
+		for(String neighbor : this.room.getNeighbors()) {
 			if(Board.lookUpRoom(neighbor) == room) {
-				this.location = room;
-				success = 1;
+				this.room = room;
+				success = true;
 			}
 		}
 		return success;

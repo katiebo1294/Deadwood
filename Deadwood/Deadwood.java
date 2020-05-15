@@ -352,7 +352,10 @@ public class Deadwood {
 		String input;
 		Scanner scan = new Scanner(System.in);
 		// list the rooms adjacent to player's current location
-		System.out.println("The available rooms are: " + currentRoom.listNeighbors() + ".");
+		System.out.println("The available rooms are: ");
+		for(String roomName : currentRoom.getNeighbors()) {
+			System.out.println(roomName);
+		}
 		System.out.print("Where would you like to go? ");
 		input = scan.next();
 		for (String room : currentRoom.getNeighbors()) {
@@ -360,7 +363,7 @@ public class Deadwood {
 			if (input.trim().equalsIgnoreCase(room)) {
 				player.move(Board.lookUpRoom(room));
 				System.out.println("Moved to " + room + ".");
-				currentRoom = player.getLocation();
+				currentRoom = player.getRoom();
 			}
 		}
 		if(currentRoom instanceof Set) {

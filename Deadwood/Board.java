@@ -26,6 +26,7 @@ public  class Board {
 		return rooms;
 	}
 	
+	// returns the room object with the same name as the given String
 	public static Room lookUpRoom(String roomName) {
 		for(Room room : rooms) {
 			if(room.getName().equalsIgnoreCase(roomName)) {
