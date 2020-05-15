@@ -48,7 +48,7 @@ public class Deadwood {
 				do {
 					while (playerCount <= players.length) {
 						System.out.println("Player " + playerCount + "'s turn.");
-						Player currentPlayer = players[playerCount];
+						Player currentPlayer = players[playerCount - 1];
 						do {
 							Scene currentScene;
 							Room currentRoom = currentPlayer.getLocation();
@@ -83,9 +83,7 @@ public class Deadwood {
 									}
 								}
 								// displays available rooms and moves the player to the selected room
-							} else if (input.equalsIgnoreCase("move")) {
-
-//								movePlayer(currentPlayer, currentRoom);			
+							} else if (input.equalsIgnoreCase("move")) {		
 								
 								String [] neighborStrings = currentRoom.getNeighbors();
 								Room [] neighbors = new Room[neighborStrings.length];
@@ -97,7 +95,7 @@ public class Deadwood {
 	
 								System.out.println("Available rooms: " + currentRoom.listNeighbors());
 								System.out.print("> ");
-								input = scan.next();
+								input = scan.next();		//Should be nextLine for main street
 								boolean match = false;
 								
 								for (Room neighbor : neighbors) {
@@ -115,7 +113,8 @@ public class Deadwood {
 												if (response.equalsIgnoreCase("yes".trim())) {
 													takeRole(currentPlayer, ((Set) currentRoom), currentScene);
 												}
-											}																		
+											}
+											input = "end";
 											break;
 										}
 								} 
@@ -365,24 +364,39 @@ public class Deadwood {
 			}
 		}
 	}
-
+	//sets for off the card, not on card.
 	private static void takeRole(Player player, Set currentRoom, Scene currentScene) {
 		String input;
 		Scanner scan = new Scanner(System.in);
 		// list available roles, separated by role type (extra or starring)
-		System.out.println("The available off-the-card roles are: " + currentRoom.listAvailableRoles(player.getRank()));
-		System.out.println("The available on-the-card roles are: " + currentScene.listAvailableRoles(player.getRank()));
-		System.out.print("Desired Role: ");
+		
+		String onCardRoles = currentScene.listAvailableRoles(player.getRank());
+		String offCardRoles = currentRoom.listAvailableRoles(player.getRank());
+		
+		System.out.println("The available off-the-card roles are: " + offCardRoles);
+		System.out.println("The available on-the-card roles are: " + onCardRoles);
+		System.out.print("Desired Role (Case Sensitive for now): ");
 		input = scan.nextLine();
-		for (Role r : currentRoom.getRoles()) {
-			// match player's input to an available role and assign them to that role
-			if (input.equalsIgnoreCase(r.getName().trim())) {
-				player.setCurrentRole(r);
-				System.out.println(
-						"You are now working " + r.getName() + " in the scene " + currentScene.getTitle() + ".");
+		
+		if(offCardRoles.contains(input)) {
+			for(Role offCard : currentRoom.getRoles()) {
+				if (input.equalsIgnoreCase(offCard.getName().trim())) {
+					player.setCurrentRole(offCard);
+					System.out.println(
+							"You are now working " + offCard.getName() + " in the scene " + currentScene.getTitle() + ".");
+				}
+			}
+			
+		} else if(onCardRoles.contains(input)) {
+			for(Role onCard : currentScene.getRoles()) {
+				if (input.equalsIgnoreCase(onCard.getName().trim())) {
+					player.setCurrentRole(onCard);
+					System.out.println(
+							"You are now working " + onCard.getName() + " in the scene " + currentScene.getTitle() + ".");
+				}
 			}
 		}
-		scan.close();
+	//	scan.close();	keep scanner open for next players turn
 	}
 
 	private static void movePlayer(Player player, Room currentRoom) {

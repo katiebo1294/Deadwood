@@ -8,6 +8,7 @@ public class Room {
 	protected String name;
 	protected String[] neighbors; //a list of adjacent rooms
 	
+	
 	public Room(Element room) {
 		this.neighbors = new String[((Element) room.getElementsByTagName("neighbors").item(0)).getElementsByTagName("neighbor").getLength()];
 		for(int i = 0; i < neighbors.length; i++) {

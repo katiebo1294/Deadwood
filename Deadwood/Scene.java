@@ -78,6 +78,15 @@ public class Scene {
 		}
 	}
 	
+	public  Role lookUpRole(String desiredRole) {
+		for(Role role : roles) {
+			if(getTitle().equalsIgnoreCase(desiredRole)) {
+				return role;
+			}
+		}
+		return null;
+	}
+	
 	public String toString() {
 		return "title = " + this.title + ", budget = " + this.budget + ", description = \"Scene " + this.sceneNum + ": " + this.desc + "\", roles = " + this.listRoles();
 	}
