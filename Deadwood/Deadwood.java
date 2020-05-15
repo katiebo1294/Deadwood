@@ -16,7 +16,6 @@ public class Deadwood {
 	public static Board BOARD;
 	public static Scene[] SCENES;
 
-
 	public static void main(String[] args) throws ParserConfigurationException {
 
 		Scanner scan = new Scanner(System.in);
@@ -32,7 +31,7 @@ public class Deadwood {
 			}
 			numPlayers = scan.nextInt();
 		} while (numPlayers < 2 || numPlayers > 8);
-
+		scan.nextLine();
 		Player[] players = new Player[numPlayers];
 		setUpGame(players);
 		int dayCount = 1;
@@ -45,26 +44,30 @@ public class Deadwood {
 			// loop through each day
 			System.out.println("Start of day " + dayCount + ".");
 			while (BOARD.getSceneCount() > 1) {
-				// loop through each player's turn;
+				// loop through each player's turn
 				endTurn = false;
 				do {
 					playerCount = 1;
 					while (playerCount <= players.length) {
 						System.out.println("Player " + playerCount + "'s turn.");
 						Player currentPlayer = players[playerCount - 1];
+						checkPlayerChoices(currentPlayer);
 						do {
-							Scene currentScene;
+							Scene currentScene = null;
 							Room currentRoom = currentPlayer.getLocation();
 							if(currentRoom instanceof Set) {
 								currentScene = ((Set)currentRoom).getSceneCard();
-							} else {
-								currentScene = null;
 							}
-							
-							
 							System.out.println("What would you like to do?");
 							System.out.print("> ");
 							input = scan.nextLine();
+							while(invalidMove(input)) {
+								System.out.println("Please enter a valid command.");
+							 	checkPlayerChoices(currentPlayer);
+							 	System.out.println("What would you like to do?");
+							 	System.out.print("> ");
+							 	input = scan.nextLine();
+							}
 							// display player's information
 							if (input.equalsIgnoreCase("info")) {
 								System.out.println("Number of credits: " + currentPlayer.getNumCredits());
@@ -121,7 +124,7 @@ public class Deadwood {
 														// prompt them to take a role at the new location
 														String response;
 														System.out.print("Would you like to take a role? ('yes' or 'no'): ");
-														response = scan.next();
+														response = scan.nextLine();
 														if (response.equalsIgnoreCase("yes".trim())) {
 															takeRole(currentPlayer, ((Set) currentRoom), currentScene);
 															askRole = true;
@@ -181,6 +184,7 @@ public class Deadwood {
 												rankNum = scan.nextInt();
 											}
 											rankNum = scan.nextInt();
+											scan.nextLine();
 										} 
 										
 										if(rankNum < currentPlayer.getRank()){					
@@ -226,26 +230,9 @@ public class Deadwood {
 							} else {
 								
 								String listOfRoles = "";
-								if(currentPlayer.getLocation().getName() != "Casting OFfice" &&
+								if(currentPlayer.getLocation().getName() != "Casting Office" &&
 															currentPlayer.getLocation().getName() != "Trailers") {
 									listOfRoles = currentScene.listAvailableRoles(currentPlayer.getRank());
-								} else {
-									 	System.out.println("Please enter a valid command");
-									 	System.out.println("You are able to:");
-									 	if(currentPlayer.getIsWorking()){
-									 		if(currentScene.getBudget() + currentPlayer.getNumPracticeChips() < 6){
-									 			System.out.println("-> Rehearse");
-									 		} 
-									 		System.out.println("-> Act");
-									 	} else{
-									 		System.out.println("-> Move");
-									 		if(listOfRoles != ""){
-									 			System.out.println("-> Take Role");
-									 		}
-									 		if(currentPlayer.getRank() != 6 && (currentRoom.getName().equals("Casting Office"))){
-									 			System.out.println("-> Upgrade");
-									 		}
-									 	}
 								}
 							}
 						} while (!endTurn); 
@@ -259,9 +246,41 @@ public class Deadwood {
 		}
 		System.out.println("The game is ending.");
 		scoring(players);
-		System.out.println("Goodbye."); //*/
-		System.out.println("(rest of the game is still under construction)\nGoodbye.");
+		System.out.println("Goodbye.");
 		scan.close();
+	}
+
+	private static boolean invalidMove(String input) {
+		boolean invalid = true;
+		if(input.equalsIgnoreCase("move".trim())) { invalid = false; }
+		if(input.equalsIgnoreCase("act".trim())) { invalid = false; }
+		if(input.equalsIgnoreCase("rehearse".trim())) { invalid = false; }
+		if(input.equalsIgnoreCase("upgrade".trim())) { invalid = false; }
+		if(input.equalsIgnoreCase("end".trim())) { invalid = false; }
+		if(input.equalsIgnoreCase("take role".trim())) { invalid = false; }
+		return invalid;
+	}
+
+	private static void checkPlayerChoices(Player currentPlayer) {
+		Room currentRoom = currentPlayer.getLocation();
+		System.out.println("You are able to:");
+		if(currentPlayer.getIsWorking()) {
+			Scene currentScene = ((Set) currentRoom).getSceneCard();
+			if (currentScene.getBudget() + currentPlayer.getNumPracticeChips() < 6) {
+				System.out.println("-> Rehearse");
+			}
+			System.out.println("-> Act");
+		} else {
+			if(currentRoom instanceof CastingOffice && currentPlayer.getRank() < 6) {
+				System.out.println("-> Upgrade");
+			} else {
+				System.out.println("-> Move");
+				if(currentRoom instanceof Set) {
+					System.out.println("-> Take Role");
+				}
+			}
+		}
+		System.out.println("-> End");
 	}
 
 	private static void endDay(Player[] players, int dayCount) {
@@ -273,7 +292,7 @@ public class Deadwood {
 		// remove remaining scene card and deal the next 10 scene cards from the deck
 		int deckIndex = (dayCount - 1) * 10;
 		for (Room r : Board.getRooms()) {
-			if(r instanceof Set) {
+			if (r instanceof Set) {
 				((Set) r).setScene(null);
 				((Set) r).setScene(SCENES[deckIndex]);
 			}
@@ -291,13 +310,7 @@ public class Deadwood {
 		SCENES = parseCards();
 		shuffleDeck();
 		generatePlayers(players);
-		endDay(players, 1); /*
-		for(Room r : Board.getRooms()) {
-			System.out.println(r.toString());
-		}
-		for(Scene s : SCENES) {
-			System.out.println(s.toString());
-		} */
+		endDay(players, 1);
 		System.out.println(CastingOffice.displayPriceList());
 	}
 
@@ -330,7 +343,6 @@ public class Deadwood {
 				+ " extra starting credits...");
 	}
 
-	
 	private static void actScene(Player player, Set currentRoom, Scene currentScene) {
 		int result;
 		result = rollDie() + player.getNumPracticeChips();
@@ -339,13 +351,13 @@ public class Deadwood {
 			System.out.println("Nice job! You did it!");
 			currentRoom.removeShot();
 			// if they are working a role off-the-card, they get 1 dollar and 1 credit
-			for(Role role : currentRoom.getRoles()) {
-				if(player.getCurrentRole() == role) {
+			for (Role role : currentRoom.getRoles()) {
+				if (player.getCurrentRole() == role) {
 					player.addCredits(1);
 					player.addDollars(1);
-				// if they are working a role on-the-card, they get 2 credits
+					// if they are working a role on-the-card, they get 2 credits
 				} else {
-				player.addCredits(2);
+					player.addCredits(2);
 				}
 			}
 			// if the last shot marker was removed, proceed to payout
@@ -362,66 +374,66 @@ public class Deadwood {
 			System.out.println("Oops! You failed to perform the scene. Try again next round.");
 			// if they are working on a role off-the-card, they receive 1 dollar (otherwise
 			// no reward)
-			for(Role role : currentRoom.getRoles()) {
-				if(player.getCurrentRole() == role) {
+			for (Role role : currentRoom.getRoles()) {
+				if (player.getCurrentRole() == role) {
 					player.addDollars(1);
 				}
 			}
 		}
 	}
-	//sets for off the card, not on card.
+
+	// sets for off the card, not on card.
 	private static void takeRole(Player player, Set currentRoom, Scene currentScene) {
 		String input;
 		Scanner scan = new Scanner(System.in);
 		boolean availableRole = false;
 		// list available roles, separated by role type (extra or starring)
 
-		
 		String onCardRoles = currentScene.listAvailableRoles(player.getRank());
 		String offCardRoles = currentRoom.listAvailableRoles(player.getRank());
-		if(onCardRoles == "" && offCardRoles == "") {
+		if (onCardRoles == "" && offCardRoles == "") {
 			System.out.println("Sorry, there are no roles to take");
 			availableRole = true;
 		}
-/*2
-		System.out.println("The available off-the-card roles are: " + offCardRoles);
-		System.out.println("The available on-the-card roles are: " + onCardRoles);
-		System.out.print("Desired Role (Case Sensitive for now): ");
-		input = scan.nextLine();
-		
-*/
-		
-		while(availableRole == false) {
-			
+		/*
+		 * 2 System.out.println("The available off-the-card roles are: " +
+		 * offCardRoles); System.out.println("The available on-the-card roles are: " +
+		 * onCardRoles); System.out.print("Desired Role (Case Sensitive for now): ");
+		 * input = scan.nextLine();
+		 * 
+		 */
+
+		while (availableRole == false) {
+
 			System.out.println("The available off-the-card roles are: " + offCardRoles);
 			System.out.println("The available on-the-card roles are: " + onCardRoles);
 			System.out.print("Desired Role: ");
 			input = scan.nextLine();
-			
-			if(offCardRoles.toUpperCase().contains(input.toUpperCase())) {
-				for(Role offCard : currentRoom.getRoles()) {
+
+			if (offCardRoles.toUpperCase().contains(input.toUpperCase())) {
+				for (Role offCard : currentRoom.getRoles()) {
 					if (input.equalsIgnoreCase(offCard.getName().trim())) {
 						player.setCurrentRole(offCard);
 						availableRole = true;
-						System.out.println(
-								"You are now working " + offCard.getName() + " in the scene " + currentScene.getTitle() + ".");
+						System.out.println("You are now working " + offCard.getName() + " in the scene "
+								+ currentScene.getTitle() + ".");
 					}
 				}
-				
-			} else if(onCardRoles.toUpperCase().contains(input.toUpperCase())) {
-				for(Role onCard : currentScene.getRoles()) {
+
+			} else if (onCardRoles.toUpperCase().contains(input.toUpperCase())) {
+				for (Role onCard : currentScene.getRoles()) {
 					if (input.equalsIgnoreCase(onCard.getName().trim())) {
 						player.setCurrentRole(onCard);
 						availableRole = true;
-						System.out.println(
-								"You are now working " + onCard.getName() + " in the scene " + currentScene.getTitle() + ".");
+						System.out.println("You are now working " + onCard.getName() + " in the scene "
+								+ currentScene.getTitle() + ".");
 					}
 				}
 			} else {
 				System.out.println("Please enter a valid role.");
 			}
 		}
-	//	scan.close();	keep scanner open for next players turn
+		// scan.close(); keep scanner open for next players turn
 	}
 
 	private static void movePlayer(Player player, Room currentRoom) {
@@ -439,7 +451,7 @@ public class Deadwood {
 				currentRoom = player.getLocation();
 			}
 		}
-		if(currentRoom instanceof Set) {
+		if (currentRoom instanceof Set) {
 			// prompt them to take a role at the new location
 			System.out.print("Would you like to take a role? ");
 			input = scan.next();
@@ -461,7 +473,8 @@ public class Deadwood {
 		// roll the die as many times as the budget ($4 million budget = 4 die rolls)
 		int numRolls = scene.getBudget();
 		int result = 0;
-		// distribute that roll's amount in dollars to each rank on the card, highest to lowest
+		// distribute that roll's amount in dollars to each rank on the card, highest to
+		// lowest
 		for (int i = 0; i < numRolls; i++) {
 			for (Role star : orderedRanks) {
 				result = rollDie();
@@ -483,89 +496,91 @@ public class Deadwood {
 	private static int rollDie() {
 		return (int) ((Math.random() * 6) + 1);
 	}
-	
-	/*Returns whether or not Player is allowed to upgrade to desired rank; upgrades if true*/
+
+	/*
+	 * Returns whether or not Player is allowed to upgrade to desired rank; upgrades
+	 * if true
+	 */
 	private static boolean upgradePlayerRank(int desired, Player currentPlayer) {
 		int cash = currentPlayer.getNumDollars();
 		int cred = currentPlayer.getNumCredits();
 		String payment = "";
 		Scanner scan = new Scanner(System.in);
 		boolean CoD = false;
-		
-		while(CoD == false) {
+
+		while (CoD == false) {
 			System.out.print("What would you like to use as payment for the upgrade? (enter 'dollars' or 'credits'): ");
 			payment = scan.next();
-			if(payment.equalsIgnoreCase("dollars") || payment.equalsIgnoreCase("credits")) {
+			if (payment.equalsIgnoreCase("dollars") || payment.equalsIgnoreCase("credits")) {
 				CoD = true;
 			} else {
 				System.out.println("Please enter valid payment type ('dollars' or 'credits')");
 			}
 		}
-					
-			if(desired == 2) {
-				if(cash >= 4 && payment.equalsIgnoreCase("dollars")) {
-					currentPlayer.upgradeRank(2);
-					currentPlayer.modifyDollars(4);
-					return true;
-				} else if(cred >= 5 && payment.equalsIgnoreCase("credits")) {
-					currentPlayer.upgradeRank(2);
-					currentPlayer.modifyCredits(5);
-					return true;
-				} else {
-					return false;
-				}				
-			} else if(desired == 3) {				
-				if(cash >= 10 && payment.equalsIgnoreCase("dollars")) {
-					currentPlayer.upgradeRank(3);
-					currentPlayer.modifyDollars(10);
-					return true;
-				} else if(cred >= 10 && payment.equalsIgnoreCase("credits")) {
-					currentPlayer.upgradeRank(3);
-					currentPlayer.modifyCredits(10);
-					return true;
-				} else {
-					return false;
-				}				
-			} else if(desired == 4) {				
-				if(cash >= 18 && payment.equalsIgnoreCase("dollars")) {
-					currentPlayer.upgradeRank(4);
-					currentPlayer.modifyDollars(18);
-					return true;
-				} else if(cred >= 15 && payment.equalsIgnoreCase("credits")) {
-					currentPlayer.upgradeRank(4);
-					currentPlayer.modifyCredits(15);
-					return true;
-				} else {
-					return false;
-				}				
-			} else if(desired == 5) {				
-				if(cash >= 28 && payment.equalsIgnoreCase("dollars")) {
-					currentPlayer.upgradeRank(5);
-					currentPlayer.modifyDollars(28);
-					return true;
-				} else if(cred >= 20 && payment.equalsIgnoreCase("credits")) {
-					currentPlayer.upgradeRank(5);
-					currentPlayer.modifyCredits(20);
-					return true;
-				} else {
-					return false;
-				}				
-			} else if(desired == 6) {				
-				if(cash >= 40 && payment.equalsIgnoreCase("dollars")) {
-					currentPlayer.upgradeRank(6);
-					currentPlayer.modifyDollars(40);
-					return true;
-				} else if(cred >= 25 && payment.equalsIgnoreCase("credits")) {
-					currentPlayer.upgradeRank(6);
-					currentPlayer.modifyCredits(25);
-					return true;
-				} else {
-					return false;
-				}
-			}			
-			return false;		
+
+		if (desired == 2) {
+			if (cash >= 4 && payment.equalsIgnoreCase("dollars")) {
+				currentPlayer.upgradeRank(2);
+				currentPlayer.modifyDollars(4);
+				return true;
+			} else if (cred >= 5 && payment.equalsIgnoreCase("credits")) {
+				currentPlayer.upgradeRank(2);
+				currentPlayer.modifyCredits(5);
+				return true;
+			} else {
+				return false;
+			}
+		} else if (desired == 3) {
+			if (cash >= 10 && payment.equalsIgnoreCase("dollars")) {
+				currentPlayer.upgradeRank(3);
+				currentPlayer.modifyDollars(10);
+				return true;
+			} else if (cred >= 10 && payment.equalsIgnoreCase("credits")) {
+				currentPlayer.upgradeRank(3);
+				currentPlayer.modifyCredits(10);
+				return true;
+			} else {
+				return false;
+			}
+		} else if (desired == 4) {
+			if (cash >= 18 && payment.equalsIgnoreCase("dollars")) {
+				currentPlayer.upgradeRank(4);
+				currentPlayer.modifyDollars(18);
+				return true;
+			} else if (cred >= 15 && payment.equalsIgnoreCase("credits")) {
+				currentPlayer.upgradeRank(4);
+				currentPlayer.modifyCredits(15);
+				return true;
+			} else {
+				return false;
+			}
+		} else if (desired == 5) {
+			if (cash >= 28 && payment.equalsIgnoreCase("dollars")) {
+				currentPlayer.upgradeRank(5);
+				currentPlayer.modifyDollars(28);
+				return true;
+			} else if (cred >= 20 && payment.equalsIgnoreCase("credits")) {
+				currentPlayer.upgradeRank(5);
+				currentPlayer.modifyCredits(20);
+				return true;
+			} else {
+				return false;
+			}
+		} else if (desired == 6) {
+			if (cash >= 40 && payment.equalsIgnoreCase("dollars")) {
+				currentPlayer.upgradeRank(6);
+				currentPlayer.modifyDollars(40);
+				return true;
+			} else if (cred >= 25 && payment.equalsIgnoreCase("credits")) {
+				currentPlayer.upgradeRank(6);
+				currentPlayer.modifyCredits(25);
+				return true;
+			} else {
+				return false;
+			}
 		}
-	
+		return false;
+	}
 
 	/*
 	 * For scoring at the end of the game: credits + dollars + five times your rank
@@ -600,12 +615,12 @@ public class Deadwood {
 		}
 
 	}
-	
+
 	private static void parseBoard() throws ParserConfigurationException {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder builder = factory.newDocumentBuilder();
 		Document board = null;
-		
+
 		try {
 			board = builder.parse("board.xml");
 			BOARD = new Board((Element) board.getElementsByTagName("board").item(0));
@@ -614,18 +629,18 @@ public class Deadwood {
 			ex.printStackTrace();
 		}
 	}
-	
+
 	private static Scene[] parseCards() throws ParserConfigurationException {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder builder = factory.newDocumentBuilder();
 		Document cards;
 		Scene[] scenes;
-		
+
 		try {
 			cards = builder.parse("cards.xml");
 			scenes = new Scene[cards.getElementsByTagName("card").getLength()];
-			for(int i = 0; i < scenes.length; i++) {
-				if(cards.getElementsByTagName("card").item(i).getNodeType() == Node.ELEMENT_NODE) {
+			for (int i = 0; i < scenes.length; i++) {
+				if (cards.getElementsByTagName("card").item(i).getNodeType() == Node.ELEMENT_NODE) {
 					scenes[i] = new Scene((Element) cards.getElementsByTagName("card").item(i));
 				}
 			}
