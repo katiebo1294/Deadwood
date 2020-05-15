@@ -45,10 +45,10 @@ public class Deadwood {
 			// loop through each day
 			System.out.println("Start of day " + dayCount + ".");
 			while (BOARD.getSceneCount() > 1) {
-				// loop through each player's turn
-				playerCount = 1;
+				// loop through each player's turn;
 				endTurn = false;
 				do {
+					playerCount = 1;
 					while (playerCount <= players.length) {
 						System.out.println("Player " + playerCount + "'s turn.");
 						Player currentPlayer = players[playerCount - 1];
@@ -90,7 +90,7 @@ public class Deadwood {
 								endTurn = true;
 							} else if(input.equalsIgnoreCase("quit")) {
 								endGame = true;
-							} else if (input.equalsIgnoreCase("move")) {		
+							} else if (input.equalsIgnoreCase("move")) {
 								
 								String [] neighborStrings = currentRoom.getNeighbors();
 								Room [] neighbors = new Room[neighborStrings.length];
@@ -165,7 +165,7 @@ public class Deadwood {
 									System.out.println();
 									System.out.println("Current Rank: " + currentPlayer.getRank());
 									System.out.println("You have: " + currentPlayer.getNumDollars() + " Dollars");
-									System.out.println("          " + currentPlayer.getNumCredits() + " Credits"); 
+									System.out.println("          " + currentPlayer.getNumCredits() + " Credits");
 									
 									while(chooseUpgrade == false){
 									
