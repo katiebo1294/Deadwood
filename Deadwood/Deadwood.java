@@ -179,7 +179,7 @@ public class Deadwood {
 									 	desiredRole = scan.nextLine();
 									 	//need to ignore upper/lowercase
 									 	if(!listOfRoles.contains(desiredRole)){
-									 		System.out.println("Please choose a role from the list");
+									 		System.out.println("Please choose a role from the list (Case sensitive)");
 									 	} else{
 									 		availableRole = true;
 									 	}
