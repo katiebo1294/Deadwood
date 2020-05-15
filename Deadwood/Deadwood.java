@@ -47,8 +47,8 @@ public class Deadwood {
 			while (BOARD.getSceneCount() > 1) {
 				// loop through each player's turn
 				playerCount = 1;
+				endTurn = false;
 				do {
-					endTurn = false;
 					while (playerCount <= players.length) {
 						System.out.println("Player " + playerCount + "'s turn.");
 						Player currentPlayer = players[playerCount - 1];
