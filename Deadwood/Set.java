@@ -63,8 +63,8 @@ public class Set extends Room {
 			result = this.roles[0].getName();
 		}
 		for(int i = 1; i < this.roles.length; i++) {
-			if(this.roles[0].getRank() <= rank) {
-				result += ", " + this.roles[0].getName();
+			if(this.roles[i].getRank() <= rank) {
+				result += ", " + this.roles[i].getName();
 			}
 		}
 		return result;

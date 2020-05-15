@@ -106,6 +106,8 @@ public class Deadwood {
 											match = true;		
 											boolean askRole = false;
 											
+											System.out.println("You have moved to " + currentRoom.getName() + ".");
+											
 											if(currentRoom instanceof Set) {
 												while(askRole == false) {
 													// prompt them to take a role at the new location
@@ -151,8 +153,6 @@ public class Deadwood {
 									boolean chooseUpgrade = false;
 									int rankNum = 0;
 									
-									//String priceList = currentRoom.displayPriceList();
-									//System.out.println(priceList);
 									System.out.println(CastingOffice.displayPriceList());
 									System.out.println();
 									System.out.println("Current Rank: " + currentPlayer.getRank());
@@ -207,22 +207,8 @@ public class Deadwood {
 								} else if(listOfRoles == ""){
 									System.out.println("Sorry, there are no roles to take here.");
 								} else {
-									boolean availableRole = false;
-									
-									 String desiredRole = "";	
-									 while(availableRole == false){
-									 	System.out.println(listOfRoles);
-									 	System.out.println("Which role would you like to take?");
-									 	desiredRole = scan.nextLine();
-									 	
-									 	if(!listOfRoles.contains(desiredRole)){
-									 		System.out.println("Please choose a role from the list (Case sensitive)");
-									 	} else{
-									 		availableRole = true;							 		
-									 	}
-									 }
-									 Role assignRole = currentScene.lookUpRole(desiredRole);
-									 currentPlayer.setCurrentRole(assignRole); 
+									takeRole(currentPlayer, ((Set) currentRoom), currentScene);
+									input = "end";
 									break;
 								}
 							} else {
@@ -250,10 +236,10 @@ public class Deadwood {
 									 	}
 								}
 							}
-						} while (!input.equalsIgnoreCase("end".trim()));
+						} while (!input.equalsIgnoreCase("end".trim())); //while boolean endTurn == false, add a check for 'end' then set endTurn = true
 						playerCount++;
 					}
-				} while (!input.equalsIgnoreCase("quit".trim()));
+				} while (!input.equalsIgnoreCase("quit".trim())); //while boolean endGame == false, add a check for 'quit' then set endGame = true
 			}
 			System.out.println("End of day " + dayCount + ".");
 			endDay(players, dayCount);
@@ -390,6 +376,7 @@ public class Deadwood {
 		System.out.println("The available on-the-card roles are: " + onCardRoles);
 		System.out.print("Desired Role (Case Sensitive for now): ");
 		input = scan.nextLine();
+		
 */
 		
 		while(availableRole == false) {
