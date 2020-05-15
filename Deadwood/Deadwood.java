@@ -37,15 +37,18 @@ public class Deadwood {
 		setUpGame(players);
 		int dayCount = 1;
 		int playerCount = 1;
+		boolean endTurn = false;
+		boolean endGame = false;
 		// Still in progress ---
 		// loop through whole game
-		while (dayCount < NUMBER_OF_DAYS) {
+		while (dayCount < NUMBER_OF_DAYS && endGame == false) {
 			// loop through each day
 			System.out.println("Start of day " + dayCount + ".");
 			while (BOARD.getSceneCount() > 1) {
 				// loop through each player's turn
 				playerCount = 1;
 				do {
+					endTurn = false;
 					while (playerCount <= players.length) {
 						System.out.println("Player " + playerCount + "'s turn.");
 						Player currentPlayer = players[playerCount - 1];
@@ -83,6 +86,10 @@ public class Deadwood {
 									}
 								}
 								// displays available rooms and moves the player to the selected room
+							} else if(input.equalsIgnoreCase("end")) {
+								endTurn = true;
+							} else if(input.equalsIgnoreCase("quit")) {
+								endGame = true;
 							} else if (input.equalsIgnoreCase("move")) {		
 								
 								String [] neighborStrings = currentRoom.getNeighbors();
@@ -123,7 +130,7 @@ public class Deadwood {
 													} 
 												}
 											}
-											input = "end";
+											endTurn = true;
 											break;
 										}
 								} 
@@ -135,6 +142,7 @@ public class Deadwood {
 									if(currentScene.getBudget() + currentPlayer.getNumPracticeChips() < 6){
 										currentPlayer.rehearse();
 										System.out.println("You now have " + currentPlayer.getNumPracticeChips() + " rehearsal chips.");
+										endTurn = true;
 									} else {
 										System.out.println("You are guarenteed to succeed. Go Act!");
 									}
@@ -208,7 +216,7 @@ public class Deadwood {
 									System.out.println("Sorry, there are no roles to take here.");
 								} else {
 									takeRole(currentPlayer, ((Set) currentRoom), currentScene);
-									input = "end";
+									endTurn = true;
 									break;
 								}
 							} else {
@@ -236,10 +244,10 @@ public class Deadwood {
 									 	}
 								}
 							}
-						} while (!input.equalsIgnoreCase("end".trim())); //while boolean endTurn == false, add a check for 'end' then set endTurn = true
+						} while (!endTurn); 
 						playerCount++;
 					}
-				} while (!input.equalsIgnoreCase("quit".trim())); //while boolean endGame == false, add a check for 'quit' then set endGame = true
+				} while (!endGame); 
 			}
 			System.out.println("End of day " + dayCount + ".");
 			endDay(players, dayCount);
