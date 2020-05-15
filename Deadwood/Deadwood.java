@@ -37,7 +37,7 @@ public class Deadwood {
 		setUpGame(players);
 		int dayCount = 1;
 		int playerCount = 1;
-		/* Still in progress ---
+		// Still in progress ---
 		// loop through whole game
 		while (dayCount < NUMBER_OF_DAYS) {
 			// loop through each day
@@ -50,8 +50,15 @@ public class Deadwood {
 						System.out.println("Player " + playerCount + "'s turn.");
 						Player currentPlayer = players[playerCount];
 						do {
+							Scene currentScene;
 							Room currentRoom = currentPlayer.getLocation();
-							Scene currentScene = currentRoom.getSceneCard();
+							if(currentRoom instanceof Set) {
+								currentScene = ((Set)currentRoom).getSceneCard();
+							} else {
+								currentScene = null;
+							}
+							
+							
 							System.out.println("What would you like to do?");
 							System.out.print("> ");
 							input = scan.next();
@@ -63,7 +70,7 @@ public class Deadwood {
 								System.out.print("Current Role: ");
 								if (currentPlayer.getIsWorking()) {
 									System.out.println(currentPlayer.getCurrentRole().getName() + " in scene "
-											+ currentScene.getSceneTitle());
+											+ currentScene.getTitle());
 								} else {
 									System.out.println("none");
 								}
@@ -72,27 +79,50 @@ public class Deadwood {
 								System.out.println("You are in " + currentRoom.getName());
 								for (int i = 0; i < players.length; i++) {
 									if (i != playerCount) {
-										System.out.println("Player " + (i + 1) + "is in " + currentRoom.getName());
+										System.out.println("Player " + (i + 1) + " is in " + currentRoom.getName());
 									}
 								}
 								// displays available rooms and moves the player to the selected room
 							} else if (input.equalsIgnoreCase("move")) {
-								ArrayList<Room> neighbors = currentRoom.getNeighbors();
+
+//								movePlayer(currentPlayer, currentRoom);			
+								
+								String [] neighborStrings = currentRoom.getNeighbors();
+								Room [] neighbors = new Room[neighborStrings.length];
+								
+								//convert strings into rooms
+								for(int i = 0; i < neighborStrings.length; i++) {
+									neighbors[i] = Board.lookUpRoom(neighborStrings[i]);
+								}
+	
 								System.out.println("Available rooms: " + currentRoom.listNeighbors());
 								System.out.print("> ");
 								input = scan.next();
 								boolean match = false;
-									for (Room neighbor : neighbors) {
+								
+								for (Room neighbor : neighbors) {
 										if (input.equalsIgnoreCase(neighbor.getName().trim())) {
 											currentPlayer.move(neighbor);
-											match = true;
+											currentRoom = currentPlayer.getLocation();
+											currentScene = ((Set)currentRoom).getSceneCard();
+											match = true;										
+											
+											if(currentRoom instanceof Set) {
+												// prompt them to take a role at the new location
+												String response;
+												System.out.print("Would you like to take a role? ");
+												response = scan.next();
+												if (response.equalsIgnoreCase("yes".trim())) {
+													takeRole(currentPlayer, ((Set) currentRoom), currentScene);
+												}
+											}																		
 											break;
 										}
-								}
+								} 
 								if(!match) {
 									System.out.println("That is not a place you can move to. Please try again.");
 								}
-							} else if (input.equalsIgnoreCase("rehearse")) {
+							}  else if (input.equalsIgnoreCase("rehearse")) {
 								if (currentPlayer.getIsWorking()) {
 									if(currentScene.getBudget() + currentPlayer.getNumPracticeChips() < 6){
 										currentPlayer.rehearse();
@@ -105,7 +135,7 @@ public class Deadwood {
 								}
 							} else if (input.equalsIgnoreCase("act")) {
 								if (currentPlayer.getIsWorking()) {
-									actScene(currentPlayer, currentRoom, currentScene);
+									actScene(currentPlayer, ((Set)currentRoom), currentScene);
 									break;
 								} else {
 									System.out.println("You must be working a role in order to act.");
@@ -115,8 +145,9 @@ public class Deadwood {
 									boolean chooseUpgrade = false;
 									int rankNum = 0;
 									
-									String priceList = currentRoom.displayPriceList();
-									System.out.println(priceList);
+									//String priceList = currentRoom.displayPriceList();
+									//System.out.println(priceList);
+									System.out.println(CastingOffice.displayPriceList());
 									System.out.println();
 									System.out.println("Current Rank: " + currentPlayer.getRank());
 									System.out.println("You have: " + currentPlayer.getNumDollars() + " Dollars");
@@ -167,7 +198,7 @@ public class Deadwood {
 								if (currentPlayer.getIsWorking()) {
 									System.out.println("You are already working "
 											+ currentPlayer.getCurrentRole().getName() + ".");
-								} else if(listOfRoles == null){
+								} else if(listOfRoles == ""){
 									System.out.println("Sorry, there are no roles to take here.");
 								} else {
 									boolean availableRole = false;
@@ -177,35 +208,40 @@ public class Deadwood {
 									 	System.out.println(listOfRoles);
 									 	System.out.println("Which role would you like to take?");
 									 	desiredRole = scan.nextLine();
-									 	//need to ignore upper/lowercase
+									 	
 									 	if(!listOfRoles.contains(desiredRole)){
 									 		System.out.println("Please choose a role from the list (Case sensitive)");
 									 	} else{
-									 		availableRole = true;
+									 		availableRole = true;							 		
 									 	}
 									 }
-									 
-									 currentPlayer.setCurrentRole(desiredRole); //currently passing in string
-									// set player's current role to the one they choose
+									 Role assignRole = currentScene.lookUpRole(desiredRole);
+									 currentPlayer.setCurrentRole(assignRole); 
 									break;
 								}
 							} else {
-								String listOfRoles = currentScene.listAvailableRoles(currentPlayer.getRank());
-								System.out.println("Please enter a valid command");
-								System.out.println("You are able to:");
-								if(currentPlayer.getIsWorking()){
-									if(currentScene.getBudget() + currentPlayer.getNumPracticeChips() < 6){
-										System.out.println("-> Rehearse");
-									} 
-									System.out.println("-> Act");
-								} else{
-									System.out.println("-> Move");
-									if(listOfRoles != null){
-										System.out.println("-> Take Role");
-									}
-									if(currentPlayer.getRank() != 6 && (currentRoom.getName().equals("Casting Office"))){
-										System.out.println("-> Upgrade");
-									}
+								
+								String listOfRoles = "";
+								if(currentPlayer.getLocation().getName() != "Casting OFfice" &&
+															currentPlayer.getLocation().getName() != "Trailers") {
+									listOfRoles = currentScene.listAvailableRoles(currentPlayer.getRank());
+								} else {
+									 	System.out.println("Please enter a valid command");
+									 	System.out.println("You are able to:");
+									 	if(currentPlayer.getIsWorking()){
+									 		if(currentScene.getBudget() + currentPlayer.getNumPracticeChips() < 6){
+									 			System.out.println("-> Rehearse");
+									 		} 
+									 		System.out.println("-> Act");
+									 	} else{
+									 		System.out.println("-> Move");
+									 		if(listOfRoles != ""){
+									 			System.out.println("-> Take Role");
+									 		}
+									 		if(currentPlayer.getRank() != 6 && (currentRoom.getName().equals("Casting Office"))){
+									 			System.out.println("-> Upgrade");
+									 		}
+									 	}
 								}
 							}
 						} while (!input.equalsIgnoreCase("end".trim()));
@@ -219,7 +255,7 @@ public class Deadwood {
 		}
 		System.out.println("The game is ending.");
 		scoring(players);
-		System.out.println("Goodbye."); */
+		System.out.println("Goodbye."); //*/
 		System.out.println("(rest of the game is still under construction)\nGoodbye.");
 		scan.close();
 	}
@@ -336,7 +372,8 @@ public class Deadwood {
 		// list available roles, separated by role type (extra or starring)
 		System.out.println("The available off-the-card roles are: " + currentRoom.listAvailableRoles(player.getRank()));
 		System.out.println("The available on-the-card roles are: " + currentScene.listAvailableRoles(player.getRank()));
-		input = scan.next();
+		System.out.print("Desired Role: ");
+		input = scan.nextLine();
 		for (Role r : currentRoom.getRoles()) {
 			// match player's input to an available role and assign them to that role
 			if (input.equalsIgnoreCase(r.getName().trim())) {
