@@ -64,7 +64,7 @@ public class Deadwood {
 							
 							System.out.println("What would you like to do?");
 							System.out.print("> ");
-							input = scan.next();
+							input = scan.nextLine();
 							// display player's information
 							if (input.equalsIgnoreCase("info")) {
 								System.out.println("Number of credits: " + currentPlayer.getNumCredits());
@@ -103,7 +103,7 @@ public class Deadwood {
 		
 									System.out.println("Available rooms: " + currentRoom.listNeighbors());
 									System.out.print("> ");
-									input = scan.next();		//Should be nextLine for main street
+									input = scan.nextLine();		//Should be nextLine for main street
 									boolean match = false;
 									
 									for (Room neighbor : neighbors) {
