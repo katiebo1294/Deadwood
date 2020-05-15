@@ -103,15 +103,22 @@ public class Deadwood {
 											currentPlayer.move(neighbor);
 											currentRoom = currentPlayer.getLocation();
 											currentScene = ((Set)currentRoom).getSceneCard();
-											match = true;										
+											match = true;		
+											boolean askRole = false;
 											
 											if(currentRoom instanceof Set) {
-												// prompt them to take a role at the new location
-												String response;
-												System.out.print("Would you like to take a role? ");
-												response = scan.next();
-												if (response.equalsIgnoreCase("yes".trim())) {
-													takeRole(currentPlayer, ((Set) currentRoom), currentScene);
+												while(askRole == false) {
+													// prompt them to take a role at the new location
+													String response;
+													System.out.print("Would you like to take a role? ('yes' or 'no'): ");
+													response = scan.next();
+													if (response.equalsIgnoreCase("yes".trim())) {
+														takeRole(currentPlayer, ((Set) currentRoom), currentScene);
+														askRole = true;
+													} else if(response.equalsIgnoreCase("no".trim())) {
+														System.out.println("no role taken");
+														askRole = true;
+													} 
 												}
 											}
 											input = "end";
@@ -368,32 +375,51 @@ public class Deadwood {
 	private static void takeRole(Player player, Set currentRoom, Scene currentScene) {
 		String input;
 		Scanner scan = new Scanner(System.in);
+		boolean availableRole = false;
 		// list available roles, separated by role type (extra or starring)
+
 		
 		String onCardRoles = currentScene.listAvailableRoles(player.getRank());
 		String offCardRoles = currentRoom.listAvailableRoles(player.getRank());
-		
+		if(onCardRoles == "" && offCardRoles == "") {
+			System.out.println("Sorry, there are no roles to take");
+			availableRole = true;
+		}
+/*2
 		System.out.println("The available off-the-card roles are: " + offCardRoles);
 		System.out.println("The available on-the-card roles are: " + onCardRoles);
 		System.out.print("Desired Role (Case Sensitive for now): ");
 		input = scan.nextLine();
+*/
 		
-		if(offCardRoles.contains(input)) {
-			for(Role offCard : currentRoom.getRoles()) {
-				if (input.equalsIgnoreCase(offCard.getName().trim())) {
-					player.setCurrentRole(offCard);
-					System.out.println(
-							"You are now working " + offCard.getName() + " in the scene " + currentScene.getTitle() + ".");
-				}
-			}
+		while(availableRole == false) {
 			
-		} else if(onCardRoles.contains(input)) {
-			for(Role onCard : currentScene.getRoles()) {
-				if (input.equalsIgnoreCase(onCard.getName().trim())) {
-					player.setCurrentRole(onCard);
-					System.out.println(
-							"You are now working " + onCard.getName() + " in the scene " + currentScene.getTitle() + ".");
+			System.out.println("The available off-the-card roles are: " + offCardRoles);
+			System.out.println("The available on-the-card roles are: " + onCardRoles);
+			System.out.print("Desired Role: ");
+			input = scan.nextLine();
+			
+			if(offCardRoles.toUpperCase().contains(input.toUpperCase())) {
+				for(Role offCard : currentRoom.getRoles()) {
+					if (input.equalsIgnoreCase(offCard.getName().trim())) {
+						player.setCurrentRole(offCard);
+						availableRole = true;
+						System.out.println(
+								"You are now working " + offCard.getName() + " in the scene " + currentScene.getTitle() + ".");
+					}
 				}
+				
+			} else if(onCardRoles.toUpperCase().contains(input.toUpperCase())) {
+				for(Role onCard : currentScene.getRoles()) {
+					if (input.equalsIgnoreCase(onCard.getName().trim())) {
+						player.setCurrentRole(onCard);
+						availableRole = true;
+						System.out.println(
+								"You are now working " + onCard.getName() + " in the scene " + currentScene.getTitle() + ".");
+					}
+				}
+			} else {
+				System.out.println("Please enter a valid role.");
 			}
 		}
 	//	scan.close();	keep scanner open for next players turn
