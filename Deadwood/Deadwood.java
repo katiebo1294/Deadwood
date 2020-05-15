@@ -91,53 +91,57 @@ public class Deadwood {
 							} else if(input.equalsIgnoreCase("quit")) {
 								endGame = true;
 							} else if (input.equalsIgnoreCase("move")) {
+								if(!currentPlayer.getIsWorking()) {
 								
-								String [] neighborStrings = currentRoom.getNeighbors();
-								Room [] neighbors = new Room[neighborStrings.length];
-								
-								//convert strings into rooms
-								for(int i = 0; i < neighborStrings.length; i++) {
-									neighbors[i] = Board.lookUpRoom(neighborStrings[i]);
-								}
-	
-								System.out.println("Available rooms: " + currentRoom.listNeighbors());
-								System.out.print("> ");
-								input = scan.next();		//Should be nextLine for main street
-								boolean match = false;
-								
-								for (Room neighbor : neighbors) {
-										if (input.equalsIgnoreCase(neighbor.getName().trim())) {
-											currentPlayer.move(neighbor);
-											currentRoom = currentPlayer.getLocation();
-											currentScene = ((Set)currentRoom).getSceneCard();
-											match = true;		
-											boolean askRole = false;
-											
-											System.out.println("You have moved to " + currentRoom.getName() + ".");
-											
-											if(currentRoom instanceof Set) {
-												while(askRole == false) {
-													// prompt them to take a role at the new location
-													String response;
-													System.out.print("Would you like to take a role? ('yes' or 'no'): ");
-													response = scan.next();
-													if (response.equalsIgnoreCase("yes".trim())) {
-														takeRole(currentPlayer, ((Set) currentRoom), currentScene);
-														askRole = true;
-													} else if(response.equalsIgnoreCase("no".trim())) {
-														System.out.println("no role taken");
-														askRole = true;
-													} 
+									String [] neighborStrings = currentRoom.getNeighbors();
+									Room [] neighbors = new Room[neighborStrings.length];
+									
+									//convert strings into rooms
+									for(int i = 0; i < neighborStrings.length; i++) {
+										neighbors[i] = Board.lookUpRoom(neighborStrings[i]);
+									}
+		
+									System.out.println("Available rooms: " + currentRoom.listNeighbors());
+									System.out.print("> ");
+									input = scan.next();		//Should be nextLine for main street
+									boolean match = false;
+									
+									for (Room neighbor : neighbors) {
+											if (input.equalsIgnoreCase(neighbor.getName().trim())) {
+												currentPlayer.move(neighbor);
+												currentRoom = currentPlayer.getLocation();
+												currentScene = ((Set)currentRoom).getSceneCard();
+												match = true;		
+												boolean askRole = false;
+												
+												System.out.println("You have moved to " + currentRoom.getName() + ".");
+												
+												if(currentRoom instanceof Set) {
+													while(askRole == false) {
+														// prompt them to take a role at the new location
+														String response;
+														System.out.print("Would you like to take a role? ('yes' or 'no'): ");
+														response = scan.next();
+														if (response.equalsIgnoreCase("yes".trim())) {
+															takeRole(currentPlayer, ((Set) currentRoom), currentScene);
+															askRole = true;
+														} else if(response.equalsIgnoreCase("no".trim())) {
+															System.out.println("no role taken");
+															askRole = true;
+														} 
+													}
 												}
+												endTurn = true;
+												break;
 											}
-											endTurn = true;
-											break;
-										}
+									} 
+									if(!match) {
+										System.out.println("That is not a place you can move to. Please try again.");
+									}
+								} else {
+									System.out.println("You cannot move while working a role");
 								} 
-								if(!match) {
-									System.out.println("That is not a place you can move to. Please try again.");
-								}
-							}  else if (input.equalsIgnoreCase("rehearse")) {
+							} else if (input.equalsIgnoreCase("rehearse")) {
 								if (currentPlayer.getIsWorking()) {
 									if(currentScene.getBudget() + currentPlayer.getNumPracticeChips() < 6){
 										currentPlayer.rehearse();
@@ -333,7 +337,7 @@ public class Deadwood {
 		// act success
 		if (result >= currentScene.getBudget()) {
 			System.out.println("Nice job! You did it!");
-			//player.getLocation().removeShot();
+			currentRoom.removeShot();
 			// if they are working a role off-the-card, they get 1 dollar and 1 credit
 			for(Role role : currentRoom.getRoles()) {
 				if(player.getCurrentRole() == role) {
