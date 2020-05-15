@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
 import java.util.Scanner;
@@ -61,7 +62,7 @@ public class Deadwood {
 							System.out.println("What would you like to do?");
 							System.out.print("> ");
 							input = scan.nextLine();
-							while(invalidMove(input)) {
+							while(!validMove(input)) {
 								System.out.println("Please enter a valid command.");
 							 	checkPlayerChoices(currentPlayer);
 							 	System.out.println("What would you like to do?");
@@ -229,10 +230,8 @@ public class Deadwood {
 								}
 							} else {
 								
-								String listOfRoles = "";
-								if(currentPlayer.getLocation().getName() != "Casting Office" &&
-															currentPlayer.getLocation().getName() != "Trailers") {
-									listOfRoles = currentScene.listAvailableRoles(currentPlayer.getRank());
+								if(currentRoom instanceof Set) {
+									((Set)currentRoom).listAvailableRoles(currentPlayer.getRank());
 								}
 							}
 						} while (!endTurn); 
@@ -250,15 +249,12 @@ public class Deadwood {
 		scan.close();
 	}
 
-	private static boolean invalidMove(String input) {
-		boolean invalid = true;
-		if(input.equalsIgnoreCase("move".trim())) { invalid = false; }
-		if(input.equalsIgnoreCase("act".trim())) { invalid = false; }
-		if(input.equalsIgnoreCase("rehearse".trim())) { invalid = false; }
-		if(input.equalsIgnoreCase("upgrade".trim())) { invalid = false; }
-		if(input.equalsIgnoreCase("end".trim())) { invalid = false; }
-		if(input.equalsIgnoreCase("take role".trim())) { invalid = false; }
-		return invalid;
+	private static boolean validMove(String input) {
+		String[] options = { "move", "act", "rehearse", "upgrade", "end", "take role", "quit", "location" };
+		for(String s : options) {
+			if(s.equalsIgnoreCase(input.trim())) { return true; }
+		}
+		return false;
 	}
 
 	private static void checkPlayerChoices(Player currentPlayer) {
