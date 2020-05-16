@@ -64,7 +64,6 @@ public class Deadwood {
 							System.out.println("What would you like to do?");
 							System.out.print("> ");
 							input = scan.nextLine();
-
 							// wait for a valid command to be input
 							while (!validMove(input)) {
 								checkPlayerChoices(player);
@@ -87,7 +86,7 @@ public class Deadwood {
 								validMove = false;
 								// display location of all players and who is currently active
 							} else if (input.equalsIgnoreCase("location".trim())) {
-								System.out.println("You are in " + currentRoom.getName());
+								System.out.println("You are player " + playerCount);
 								for (int i = 0; i < players.length; i++) {
 									if (i != playerCount) {
 										System.out.println(
@@ -96,13 +95,15 @@ public class Deadwood {
 								}
 								validMove = false;
 							} else if (input.equalsIgnoreCase("end")) {
+								validMove = true;
 								endTurn = true;
 								validMove = true;
 							} else if (input.equalsIgnoreCase("quit")) {
+								validMove = true;
 								endGame = true;
-								System.out.println("Goodbye.");
+								System.out.println("Player " + playerCount + " has ended the game :(");
 								System.exit(0);
-								// move player to another room
+							// move player to another room
 							} else if (input.equalsIgnoreCase("move")) {
 								if (!player.isWorking()) {
 									movePlayer(player);
@@ -278,6 +279,9 @@ public class Deadwood {
 					player.addCredits(2);
 				}
 			}
+			System.out.println("Scene: " + currentScene.getTitle());
+			System.out.println("# of shots remaining: " + currentRoom.getRemainingShots());
+			System.out.println("# of practice chips you have: " + player.getNumPracticeChips());
 			// if the last shot marker was removed, proceed to payout
 			if (currentRoom.getRemainingShots() == 0) {
 				System.out.println("That's a wrap!");
