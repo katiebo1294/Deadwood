@@ -45,7 +45,7 @@ public class Scene {
 	public boolean actorsOnCard() {
 		boolean result = false;
 		for(Role r : this.roles) {
-			if(r.getIsWorked()) {
+			if(r.isWorked()) {
 				result = true;
 			}
 		}

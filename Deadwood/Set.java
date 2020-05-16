@@ -63,27 +63,10 @@ public class Set extends Room {
 			result = this.roles[0].getName();
 		}
 		for(int i = 1; i < this.roles.length; i++) {
-			if(this.roles[i].getRank() <= rank) {
+			if(this.roles[i].getRank() <= rank && !this.roles[i].isWorked()) {
 				result += ", " + this.roles[i].getName();
 			}
 		}
 		return result;
-	}
-	
-	public String listRoles() {
-		if(this.getRoles().length > 0) {
-			String result = "[" + this.roles[0].toString();
-			for(int i = 1; i < this.roles.length; i++) {
-				result += ", " + this.roles[i].toString();
-			}
-			result += "]";
-			return result;
-		} else {
-			return "[none]";
-		}
-	}
-	
-	public String toString() {
-		 return "name = '" + this.name + "', neighbors = " + super.listNeighbors() + ", roles = " + this.listRoles() + ", total shots = " + this.totalShots;
 	}
 }
