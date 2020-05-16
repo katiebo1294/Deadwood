@@ -63,14 +63,16 @@ public class Deadwood {
 							}
 							System.out.println("What would you like to do?");
 							System.out.print("> ");
-							input = scan.nextLine();
+							input = scan.next();
+							
+							
 							// wait for a valid command to be input
 							while (!validMove(input)) {
 								System.out.println("Please enter a valid command.");
 								checkPlayerChoices(currentPlayer);
 								System.out.println("What would you like to do?");
 								System.out.print("> ");
-								input = scan.nextLine();
+								input = scan.next();
 							}
 							// display player's information
 							if (input.equalsIgnoreCase("info")) {
@@ -100,6 +102,7 @@ public class Deadwood {
 							} else if (input.equalsIgnoreCase("move")) {
 								if (!currentPlayer.getIsWorking()) {
 									movePlayer(currentPlayer);
+									validMove = true;
 								}
 							} else if (input.equalsIgnoreCase("rehearse")) {
 								if (canRehearse(currentPlayer, currentScene)) {
@@ -114,52 +117,6 @@ public class Deadwood {
 									validMove = false;
 								}
 							} else if (input.equalsIgnoreCase("upgrade")) {
-								if (currentRoom.getName().equals("Casting Office")) {
-									boolean chooseUpgrade = false;
-									int rankNum = 0;
-
-									System.out.println(CastingOffice.displayPriceList());
-									System.out.println();
-									System.out.println("Current Rank: " + currentPlayer.getRank());
-									System.out.println("You have: " + currentPlayer.getNumDollars() + " Dollars");
-									System.out.println("          " + currentPlayer.getNumCredits() + " Credits");
-
-									while (chooseUpgrade == false) {
-
-										while (rankNum < 2 || rankNum > 6) {
-											System.out.println(
-													"What rank would you like to upgrade to? (If you no longer want to upgrade, enter your current rank)");
-											System.out.print("Desired Rank: ");
-											while (!scan.hasNextInt()) {
-												System.out.println("Please enter a valid rank (2-6)");
-												rankNum = scan.nextInt();
-											}
-											rankNum = scan.nextInt();
-											scan.nextLine();
-										}
-
-										if (rankNum < currentPlayer.getRank()) {
-											System.out.println("Sorry, you cannot downgrade");
-											rankNum = 0;
-										} else if (rankNum == currentPlayer.getRank()) {
-
-											System.out.println("No upgrade");
-											chooseUpgrade = true;
-
-										} else if (rankNum > currentPlayer.getRank()) {
-
-											boolean canUpgrade = upgradePlayerRank(rankNum, currentPlayer);
-											if (canUpgrade) {
-												// Player has upgraded
-												chooseUpgrade = true;
-											} else {
-												// Player cannot upgrade to desired rank, reprompted
-												System.out.println("You cannot upgrade to that rank");
-												rankNum = 0;
-											}
-										}
-									}
-
 									if (canUpgrade(currentPlayer, currentRoom)) {
 										validMove = true;
 									} else {
@@ -181,8 +138,7 @@ public class Deadwood {
 									endTurn = false;
 								}
 
-							}
-						} while (!endTurn);
+							}while (!endTurn);
 						playerCount++;
 					}
 				} while (!endGame);
@@ -415,7 +371,6 @@ public class Deadwood {
 				}
 			} while (!(input.equalsIgnoreCase("no".trim()) || !input.equalsIgnoreCase("yes".trim())));
 		}
-		scan.close();
 		return match;
 	}
 
@@ -502,7 +457,7 @@ public class Deadwood {
 			System.out.println("          " + currentPlayer.getNumCredits() + " Credits");
 
 			while (chooseUpgrade == false) {
-
+				
 				// get wanted rank
 				while (rankNum < 2 || rankNum > 6) {
 					System.out.println(
@@ -515,6 +470,9 @@ public class Deadwood {
 					}
 					rankNum = scan.nextInt();
 					scan.nextLine();
+					if(rankNum == currentPlayer.getRank()) {
+						break;
+					}
 				}
 
 				if (rankNum < currentPlayer.getRank()) {
@@ -524,6 +482,7 @@ public class Deadwood {
 
 					System.out.println("No upgrade");
 					chooseUpgrade = true;
+					return false;
 
 				} else if (rankNum > currentPlayer.getRank()) {
 
