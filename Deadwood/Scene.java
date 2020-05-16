@@ -54,28 +54,15 @@ public class Scene {
 	
 	public String listAvailableRoles(int rank) {
 		String result = "";
-		if(this.getRoles()[0].getRank() <= rank) {
-			result = this.getRoles()[0].getName();
+		if(this.roles[0].getRank() <= rank && !this.roles[0].isWorked()) {
+			result = this.roles[0].getName();
 		}
-		for(int i = 1; i < this.getRoles().length; i++) {
-			if(this.getRoles()[0].getRank() <= rank) {
-				result += ", " + this.getRoles()[0].getName();
+		for(int i = 1; i < this.roles.length; i++) {
+			if(this.roles[i].getRank() <= rank && !this.roles[i].isWorked()) {
+				result += ", " + this.roles[i].getName();
 			}
 		}
 		return result;
-	}
-	
-	public String listRoles() {
-		if(this.getRoles().length > 0) {
-			String result = "[" + this.getRoles()[0].toString();
-			for(int i = 1; i < this.getRoles().length; i++) {
-				result += ", " + this.getRoles()[i].toString();
-			}
-			result += "]";
-			return result;
-		} else {
-			return "[none]";
-		}
 	}
 	
 	public  Role lookUpRole(String desiredRole) {
@@ -85,9 +72,5 @@ public class Scene {
 			}
 		}
 		return null;
-	}
-	
-	public String toString() {
-		return "title = " + this.title + ", budget = " + this.budget + ", description = \"Scene " + this.sceneNum + ": " + this.desc + "\", roles = " + this.listRoles();
 	}
 }

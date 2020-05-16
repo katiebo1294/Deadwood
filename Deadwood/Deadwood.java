@@ -85,7 +85,7 @@ public class Deadwood {
 								} else {
 									System.out.println("none");
 								}
-								validMove = true;
+								validMove = false;
 							// display location of all players and who is currently active
 							} else if (input.equalsIgnoreCase("location".trim())) {
 								System.out.println("You are in " + currentRoom.getName());
@@ -94,7 +94,7 @@ public class Deadwood {
 										System.out.println("Player " + (i + 1) + " is in " + players[i].getLocation().getName());
 									}
 								}
-								validMove = true;
+								validMove = false;
 							} else if (input.equalsIgnoreCase("end")) {
 								endTurn = true;
 							} else if (input.equalsIgnoreCase("quit")) {
@@ -173,12 +173,12 @@ public class Deadwood {
 		System.out.println("You are able to:");
 		if (currentPlayer.getIsWorking()) {
 			Scene currentScene = ((Set) currentRoom).getSceneCard();
-			if (currentScene.getBudget() + currentPlayer.getNumPracticeChips() < 6) {
+			if ((currentPlayer.getNumPracticeChips() + 1) < currentScene.getBudget()) {
 				System.out.println("-> Rehearse");
 			}
 			System.out.println("-> Act");
 		} else {
-			if (currentRoom instanceof CastingOffice && currentPlayer.getRank() < 6) {
+			if (currentPlayer.getLocation() instanceof CastingOffice && currentPlayer.getRank() < 6) {
 				System.out.println("-> Upgrade");
 			} else {
 				System.out.println("-> Move");
@@ -338,6 +338,7 @@ public class Deadwood {
 						availableRole = true;
 						System.out.println("You are now working " + onCard.getName() + " in the scene "
 								+ currentScene.getTitle() + ".");
+						break;
 					}
 				}
 			} else {
@@ -437,9 +438,9 @@ public class Deadwood {
 
 	private static boolean canRehearse(Player currentPlayer, Scene currentScene) {
 		if (currentPlayer.getIsWorking()) {
-			if (currentScene.getBudget() + currentPlayer.getNumPracticeChips() < 6) {
+			if (1 + currentPlayer.getNumPracticeChips() < currentScene.getBudget()) {
 				currentPlayer.rehearse();
-				System.out.println("You now have " + currentPlayer.getNumPracticeChips() + " rehearsal chips.");
+				System.out.println("You now have " + currentPlayer.getNumPracticeChips() + " rehearsal chips. You need " + (currentScene.getBudget() - (currentPlayer.getNumPracticeChips() + 1)) + " more practice chips for guaranteed success.");
 				return true;
 			} else {
 				System.out.println("You are guarenteed to succeed. Go Act!");
@@ -470,7 +471,7 @@ public class Deadwood {
 							"What rank would you like to upgrade to? (If you no longer want to upgrade, enter your current rank)");
 					System.out.print("Desired Rank: ");
 					while (!scan.hasNextInt()) {
-						System.out.println("Please enter a valid rank (2-6)");
+						System.out.println("Please enter a valid rank (" + (currentPlayer.getRank() + 1) +  "-6)");
 						rankNum = scan.nextInt();
 						scan.nextLine();
 					}
@@ -491,10 +492,10 @@ public class Deadwood {
 					return false;
 
 				} else if (rankNum > currentPlayer.getRank()) {
-
+					int oldRank = currentPlayer.getRank();
 					boolean canUpgrade = upgradePlayerRank(rankNum, currentPlayer);
 					if (canUpgrade) {
-						// Player has upgraded
+						System.out.println("Upgraded from rank " + oldRank + " to rank " + currentPlayer.getRank());
 						chooseUpgrade = true;
 						return true;
 					} else {
