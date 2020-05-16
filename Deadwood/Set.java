@@ -59,7 +59,7 @@ public class Set extends Room {
 	// Lists the name of each role in this.roles in a comma-separated list
 	public String listAvailableRoles(int rank) {
 		String result = "";
-		if(this.roles[0].getRank() <= rank) {
+		if(this.roles[0].getRank() <= rank && !this.roles[0].isWorked()) {
 			result = this.roles[0].getName();
 		}
 		for(int i = 1; i < this.roles.length; i++) {
