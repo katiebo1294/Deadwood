@@ -183,11 +183,11 @@ public class Deadwood {
 		} else {
 			if (currentPlayer.getLocation() instanceof CastingOffice && currentPlayer.getRank() < 6) {
 				System.out.println("-> Upgrade");
-			} else {
-				System.out.println("-> Move");
-				if (currentRoom instanceof Set) {
-					System.out.println("-> Take Role");
-				}
+			} 
+			System.out.println("-> Move");
+			if (currentRoom instanceof Set) {
+				System.out.println("-> Take Role");
+				
 			}
 		}
 		System.out.println("-> Info");
@@ -373,7 +373,7 @@ public class Deadwood {
 				}
 			}
 		} while (!match);
-		if (currentRoom instanceof Set) {
+		if (((Set) currentRoom).getSceneCard() != null) {
 			// prompt them to take a role at the new location
 			do {
 				System.out.print("Would you like to take a role? (yes or no) ");
@@ -425,10 +425,10 @@ public class Deadwood {
 					while (!scan.hasNextInt()) {
 						System.out.println("Please enter a valid rank (" + (currentPlayer.getRank() + 1) +  "-6)");
 						rankNum = scan.nextInt();
-						scan.nextLine();
+//						scan.nextLine();
 					}
 					rankNum = scan.nextInt();
-					scan.nextLine();
+//					scan.nextLine();
 					if(rankNum == currentPlayer.getRank()) {
 						break;
 					}
