@@ -383,61 +383,6 @@ public class Deadwood {
 		return match;
 	}
 
-	private static boolean canMove(Player currentPlayer, Room currentRoom, Scene currentScene) {
-		String input = "";
-		Scanner scan = new Scanner(System.in);
-		if (!currentPlayer.getIsWorking()) {
-
-			String[] neighborStrings = currentRoom.getNeighbors();
-			Room[] neighbors = new Room[neighborStrings.length];
-
-			// convert strings into rooms
-			for (int i = 0; i < neighborStrings.length; i++) {
-				neighbors[i] = Board.lookUpRoom(neighborStrings[i]);
-			}
-
-			System.out.println("Available rooms: " + currentRoom.listNeighbors());
-			System.out.print("> ");
-			input = scan.nextLine(); // Should be nextLine for main street
-			boolean match = false;
-
-			for (Room neighbor : neighbors) {
-				if (input.equalsIgnoreCase(neighbor.getName().trim())) {
-					currentPlayer.move(neighbor);
-					currentRoom = currentPlayer.getLocation();
-					currentScene = ((Set) currentRoom).getSceneCard();
-					match = true;
-					boolean askRole = false;
-
-					System.out.println("You have moved to " + currentRoom.getName() + ".");
-
-					if (currentRoom instanceof Set) {
-						while (askRole == false) {
-							// prompt them to take a role at the new location
-							String response;
-							System.out.print("Would you like to take a role? ('yes' or 'no'): ");
-							response = scan.next();
-							scan.nextLine();
-							if (response.trim().equalsIgnoreCase("yes")) {
-								takeRole(currentPlayer, ((Set) currentRoom), currentScene);
-								askRole = true;
-							} else if (response.trim().equalsIgnoreCase("no")) {
-								System.out.println("no role taken");
-								askRole = true;
-							}
-						}
-					}
-				}
-				return true;
-			}
-			if (!match) {
-				System.out.println("That is not a place you can move to. Please try again.");
-			}
-		}
-		System.out.println("You cannot move while working on a role");
-		return false;
-	}
-
 	private static boolean canRehearse(Player currentPlayer, Scene currentScene) {
 		if (currentPlayer.getIsWorking()) {
 
