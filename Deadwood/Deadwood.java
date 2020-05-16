@@ -63,13 +63,15 @@ public class Deadwood {
 							}
 							System.out.println("What would you like to do?");
 							System.out.print("> ");
-							input = scan.nextLine();
+							input = scan.next();
+							
+							
 							// wait for a valid command to be input
 							while(!validMove(input)) {
 								checkPlayerChoices(currentPlayer);
 								System.out.println("What would you like to do?");
 								System.out.print("> ");
-								input = scan.nextLine();
+								input = scan.next();
 							}
 							// display player's information
 							if (input.equalsIgnoreCase("info".trim())) {
@@ -139,7 +141,9 @@ public class Deadwood {
 								} else {
 									endTurn = false;
 								}
-						} while (!endTurn && scan.hasNextLine());
+
+							}while (!endTurn);
+						
 						playerCount++;
 					}
 				} while (!endGame);
@@ -373,7 +377,6 @@ public class Deadwood {
 				}
 			} while (!(input.trim().equalsIgnoreCase("no") || input.trim().equalsIgnoreCase("yes")));
 		}
-		//scan.close();
 		return match;
 	}
 
@@ -460,7 +463,7 @@ public class Deadwood {
 			System.out.println("          " + currentPlayer.getNumCredits() + " Credits");
 
 			while (chooseUpgrade == false) {
-
+				
 				// get wanted rank
 				while (rankNum < 2 || rankNum > 6) {
 					System.out.println(
@@ -473,6 +476,9 @@ public class Deadwood {
 					}
 					rankNum = scan.nextInt();
 					scan.nextLine();
+					if(rankNum == currentPlayer.getRank()) {
+						break;
+					}
 				}
 
 				if (rankNum < currentPlayer.getRank()) {
@@ -482,6 +488,7 @@ public class Deadwood {
 
 					System.out.println("No upgrade");
 					chooseUpgrade = true;
+					return false;
 
 				} else if (rankNum > currentPlayer.getRank()) {
 
