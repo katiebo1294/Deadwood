@@ -94,9 +94,13 @@ public class Deadwood {
 								}
 								validMove = false;
 							} else if (input.equalsIgnoreCase("end")) {
+								validMove = true;
 								endTurn = true;
 							} else if (input.equalsIgnoreCase("quit")) {
+								validMove = true;
 								endGame = true;
+								System.out.println("Player " + playerCount + " has ended the game :(");
+								System.exit(0);
 							// move player to another room
 							} else if (input.equalsIgnoreCase("move")) {
 								if (!currentPlayer.getIsWorking()) {
