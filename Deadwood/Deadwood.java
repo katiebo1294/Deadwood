@@ -63,7 +63,7 @@ public class Deadwood {
 							}
 							System.out.println("What would you like to do?");
 							System.out.print("> ");
-							input = scan.next();
+							input = scan.nextLine();
 							
 							
 							// wait for a valid command to be input
