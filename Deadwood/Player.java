@@ -41,8 +41,8 @@ public class Player {
 		return rank;
 	}
 	
-	public boolean getIsWorking() {
-		return this.isWorking;
+	public boolean isWorking() {
+		return this.currentRole != null;
 	}
 	
 	public Role getCurrentRole() {

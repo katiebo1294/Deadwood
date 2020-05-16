@@ -23,6 +23,11 @@ public class Role implements Comparable< Role > {
         this.rank = rank;
 	}
 	
+	public void endRole() {
+		this.actor.setCurrentRole(null);
+		this.actor = null;
+	}
+	
 	public boolean isWorked() {
 		return this.actor != null;
 	}

@@ -55,11 +55,11 @@ public class Scene {
 	public String listAvailableRoles(int rank) {
 		String result = "";
 		if(this.roles[0].getRank() <= rank && !this.roles[0].isWorked()) {
-			result = this.roles[0].getName();
+			result = this.roles[0].getName() + ", rank " + this.roles[0].getRank();
 		}
 		for(int i = 1; i < this.roles.length; i++) {
 			if(this.roles[i].getRank() <= rank && !this.roles[i].isWorked()) {
-				result += ", " + this.roles[i].getName();
+				result += ", " + this.roles[i].getName() + ", rank " + this.roles[i].getRank();
 			}
 		}
 		return result;
