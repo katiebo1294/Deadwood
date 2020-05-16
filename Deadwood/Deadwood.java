@@ -39,6 +39,7 @@ public class Deadwood {
 		int playerCount = 1;
 		boolean endTurn = false;
 		boolean endGame = false;
+		boolean validMove = false;
 		// Still in progress ---
 		// loop through whole game
 		while (dayCount < NUMBER_OF_DAYS && endGame == false) {
@@ -64,7 +65,7 @@ public class Deadwood {
 							
 							System.out.println("What would you like to do?");
 							System.out.print("> ");
-							input = scan.next();
+							input = scan.nextLine();
 							// display player's information
 							if (input.equalsIgnoreCase("info")) {
 								System.out.println("Number of credits: " + currentPlayer.getNumCredits());
@@ -91,162 +92,43 @@ public class Deadwood {
 							} else if(input.equalsIgnoreCase("quit")) {
 								endGame = true;
 							} else if (input.equalsIgnoreCase("move")) {
-								if(!currentPlayer.getIsWorking()) {
-								
-									String [] neighborStrings = currentRoom.getNeighbors();
-									Room [] neighbors = new Room[neighborStrings.length];
-									
-									//convert strings into rooms
-									for(int i = 0; i < neighborStrings.length; i++) {
-										neighbors[i] = Board.lookUpRoom(neighborStrings[i]);
-									}
-		
-									System.out.println("Available rooms: " + currentRoom.listNeighbors());
-									System.out.print("> ");
-									input = scan.next();		//Should be nextLine for main street
-									boolean match = false;
-									
-									for (Room neighbor : neighbors) {
-											if (input.equalsIgnoreCase(neighbor.getName().trim())) {
-												currentPlayer.move(neighbor);
-												currentRoom = currentPlayer.getLocation();
-												currentScene = ((Set)currentRoom).getSceneCard();
-												match = true;		
-												boolean askRole = false;
-												
-												System.out.println("You have moved to " + currentRoom.getName() + ".");
-												
-												if(currentRoom instanceof Set) {
-													while(askRole == false) {
-														// prompt them to take a role at the new location
-														String response;
-														System.out.print("Would you like to take a role? ('yes' or 'no'): ");
-														response = scan.next();
-														if (response.equalsIgnoreCase("yes".trim())) {
-															takeRole(currentPlayer, ((Set) currentRoom), currentScene);
-															askRole = true;
-														} else if(response.equalsIgnoreCase("no".trim())) {
-															System.out.println("no role taken");
-															askRole = true;
-														} 
-													}
-												}
-												endTurn = true;
-												break;
-											}
-									} 
-									if(!match) {
-										System.out.println("That is not a place you can move to. Please try again.");
-									}
+								if(canMove(currentPlayer, currentRoom, currentScene)) {
+									validMove = true;
 								} else {
-									System.out.println("You cannot move while working a role");
-								} 
+									validMove = false;
+								}
 							} else if (input.equalsIgnoreCase("rehearse")) {
-								if (currentPlayer.getIsWorking()) {
-									if(currentScene.getBudget() + currentPlayer.getNumPracticeChips() < 6){
-										currentPlayer.rehearse();
-										System.out.println("You now have " + currentPlayer.getNumPracticeChips() + " rehearsal chips.");
-										endTurn = true;
-									} else {
-										System.out.println("You are guarenteed to succeed. Go Act!");
-									}
+								if(canRehearse(currentPlayer, currentScene)) {
+									validMove = true;
 								} else {
-									System.out.println("You must be working a role in order to rehearse.");
+									validMove = false;
 								}
 							} else if (input.equalsIgnoreCase("act")) {
-								if (currentPlayer.getIsWorking()) {
-									actScene(currentPlayer, ((Set)currentRoom), currentScene);
-									break;
+								if(canAct(currentPlayer, currentRoom, currentScene)) {
+									validMove = true;
 								} else {
-									System.out.println("You must be working a role in order to act.");
+									validMove = false;
 								}
 							} else if (input.equalsIgnoreCase("upgrade")) {
-								if (currentRoom.getName().equals("Casting Office")) {
-									boolean chooseUpgrade = false;
-									int rankNum = 0;
-									
-									System.out.println(CastingOffice.displayPriceList());
-									System.out.println();
-									System.out.println("Current Rank: " + currentPlayer.getRank());
-									System.out.println("You have: " + currentPlayer.getNumDollars() + " Dollars");
-									System.out.println("          " + currentPlayer.getNumCredits() + " Credits");
-									
-									while(chooseUpgrade == false){
-									
-										while (rankNum < 2 || rankNum > 6){
-											System.out.println("What rank would you like to upgrade to? (If you no longer want to upgrade, enter your current rank)");
-											System.out.print("Desired Rank: ");
-											while(!scan.hasNextInt()){
-												System.out.println("Please enter a valid rank (2-6)");
-												rankNum = scan.nextInt();
-											}
-											rankNum = scan.nextInt();
-										} 
-										
-										if(rankNum < currentPlayer.getRank()){					
-											System.out.println("Sorry, you cannot downgrade");
-											rankNum = 0;
-										} else if(rankNum == currentPlayer.getRank()){
-										
-											System.out.println("No upgrade");
-											chooseUpgrade = true;
-											
-										} else if(rankNum > currentPlayer.getRank()){
-										
-											boolean canUpgrade = upgradePlayerRank(rankNum, currentPlayer);
-											if(canUpgrade){
-												//Player has upgraded
-												chooseUpgrade = true;
-											} else{
-												//Player cannot upgrade to desired rank, reprompted
-												System.out.println("You cannot upgrade to that rank");
-												rankNum = 0;
-											}
-										}
-									}
-
-									break;
+								if(canUpgrade(currentPlayer, currentRoom)) {
+									validMove = true;
 								} else {
-									System.out.println(
-											"You must be in the Casting Office to upgrade your rank. You are in "
-													+ currentRoom.getName() + ".");
+									validMove = false;
 								}
 							} else if (input.equalsIgnoreCase("take role")) {
-								String listOfRoles = currentScene.listAvailableRoles(currentPlayer.getRank());
-								if (currentPlayer.getIsWorking()) {
-									System.out.println("You are already working "
-											+ currentPlayer.getCurrentRole().getName() + ".");
-								} else if(listOfRoles == ""){
-									System.out.println("Sorry, there are no roles to take here.");
+								if(canTakeRole(currentPlayer, currentRoom, currentScene)) {
+									validMove = true;
 								} else {
-									takeRole(currentPlayer, ((Set) currentRoom), currentScene);
-									endTurn = true;
-									break;
+									validMove = false;
 								}
 							} else {
-								
-								String listOfRoles = "";
-								if(currentPlayer.getLocation().getName() != "Casting OFfice" &&
-															currentPlayer.getLocation().getName() != "Trailers") {
-									listOfRoles = currentScene.listAvailableRoles(currentPlayer.getRank());
-								} else {
-									 	System.out.println("Please enter a valid command");
-									 	System.out.println("You are able to:");
-									 	if(currentPlayer.getIsWorking()){
-									 		if(currentScene.getBudget() + currentPlayer.getNumPracticeChips() < 6){
-									 			System.out.println("-> Rehearse");
-									 		} 
-									 		System.out.println("-> Act");
-									 	} else{
-									 		System.out.println("-> Move");
-									 		if(listOfRoles != ""){
-									 			System.out.println("-> Take Role");
-									 		}
-									 		if(currentPlayer.getRank() != 6 && (currentRoom.getName().equals("Casting Office"))){
-									 			System.out.println("-> Upgrade");
-									 		}
-									 	}
-								}
+								validMove = false;
+							}
+							if(validMove) {
+								endTurn = true;
+							} else {
+								endTurn = false;
+								//Katies helper
 							}
 						} while (!endTurn); 
 						playerCount++;
@@ -369,6 +251,15 @@ public class Deadwood {
 			}
 		}
 	}
+	private static boolean canAct(Player currentPlayer, Room currentRoom, Scene currentScene) {
+		if (currentPlayer.getIsWorking()) {
+			actScene(currentPlayer, ((Set)currentRoom), currentScene);
+			return true;
+		} else {
+			System.out.println("You must be working a role in order to act.");
+		}
+		return false;
+	}
 	//sets for off the card, not on card.
 	private static void takeRole(Player player, Set currentRoom, Scene currentScene) {
 		String input;
@@ -383,20 +274,13 @@ public class Deadwood {
 			System.out.println("Sorry, there are no roles to take");
 			availableRole = true;
 		}
-/*2
-		System.out.println("The available off-the-card roles are: " + offCardRoles);
-		System.out.println("The available on-the-card roles are: " + onCardRoles);
-		System.out.print("Desired Role (Case Sensitive for now): ");
-		input = scan.nextLine();
-		
-*/
-		
 		while(availableRole == false) {
 			
 			System.out.println("The available off-the-card roles are: " + offCardRoles);
 			System.out.println("The available on-the-card roles are: " + onCardRoles);
 			System.out.print("Desired Role: ");
 			input = scan.nextLine();
+			
 			
 			if(offCardRoles.toUpperCase().contains(input.toUpperCase())) {
 				for(Role offCard : currentRoom.getRoles()) {
@@ -431,6 +315,7 @@ public class Deadwood {
 		System.out.println("The available rooms are: " + currentRoom.listNeighbors() + ".");
 		System.out.print("Where would you like to go? ");
 		input = scan.next();
+		scan.nextLine();
 		for (String room : currentRoom.getNeighbors()) {
 			// match player's input to an available room and move them there
 			if (input.trim().equalsIgnoreCase(room)) {
@@ -443,11 +328,153 @@ public class Deadwood {
 			// prompt them to take a role at the new location
 			System.out.print("Would you like to take a role? ");
 			input = scan.next();
+			scan.nextLine();
 			if (input.equalsIgnoreCase("yes".trim())) {
 				takeRole(player, ((Set) currentRoom), ((Set) currentRoom).getSceneCard());
 			}
 		}
 		scan.close();
+	}
+	
+	private static boolean canMove(Player currentPlayer, Room currentRoom, Scene currentScene) {
+		String input = "";
+		Scanner scan = new Scanner(System.in);
+		if(!currentPlayer.getIsWorking()) {
+			
+			String [] neighborStrings = currentRoom.getNeighbors();
+			Room [] neighbors = new Room[neighborStrings.length];
+			
+			//convert strings into rooms
+			for(int i = 0; i < neighborStrings.length; i++) {
+				neighbors[i] = Board.lookUpRoom(neighborStrings[i]);
+			}
+
+			System.out.println("Available rooms: " + currentRoom.listNeighbors());
+			System.out.print("> ");
+			input = scan.nextLine();		//Should be nextLine for main street
+			boolean match = false;
+			
+			for (Room neighbor : neighbors) {
+					if (input.equalsIgnoreCase(neighbor.getName().trim())) {
+						currentPlayer.move(neighbor);
+						currentRoom = currentPlayer.getLocation();
+						currentScene = ((Set)currentRoom).getSceneCard();
+						match = true;		
+						boolean askRole = false;
+						
+						System.out.println("You have moved to " + currentRoom.getName() + ".");
+						
+						if(currentRoom instanceof Set) {
+							while(askRole == false) {
+								// prompt them to take a role at the new location
+								String response;
+								System.out.print("Would you like to take a role? ('yes' or 'no'): ");
+								response = scan.next();
+								scan.nextLine();
+								if (response.equalsIgnoreCase("yes".trim())) {
+									takeRole(currentPlayer, ((Set) currentRoom), currentScene);
+									askRole = true;
+								} else if(response.equalsIgnoreCase("no".trim())) {
+									System.out.println("no role taken");
+									askRole = true;
+								}
+							}
+						}				
+					} return true;
+			}
+			if(!match) {
+				System.out.println("That is not a place you can move to. Please try again.");
+			}
+		}
+		System.out.println("You cannot move while working on a role");
+		return false;
+	}
+	
+	private static boolean canRehearse(Player currentPlayer, Scene currentScene) {
+		if (currentPlayer.getIsWorking()) {
+			if(currentScene.getBudget() + currentPlayer.getNumPracticeChips() < 6){
+				currentPlayer.rehearse();
+				System.out.println("You now have " + currentPlayer.getNumPracticeChips() + " rehearsal chips.");
+				return true;
+			} else {
+				System.out.println("You are guarenteed to succeed. Go Act!");
+			}
+		} else {
+			System.out.println("You must be working a role in order to rehearse.");
+		}
+		return false;
+	}
+	
+	private static boolean canUpgrade(Player currentPlayer, Room currentRoom) {
+		Scanner scan = new Scanner(System.in);
+		if (currentRoom.getName().equals("Casting Office")) {
+			boolean chooseUpgrade = false;
+			int rankNum = 0;
+			
+			System.out.println(CastingOffice.displayPriceList());
+			System.out.println();
+			System.out.println("Current Rank: " + currentPlayer.getRank());
+			System.out.println("You have: " + currentPlayer.getNumDollars() + " Dollars");
+			System.out.println("          " + currentPlayer.getNumCredits() + " Credits");
+			
+			while(chooseUpgrade == false){
+				
+				//get wanted rank
+				while (rankNum < 2 || rankNum > 6){
+					System.out.println("What rank would you like to upgrade to? (If you no longer want to upgrade, enter your current rank)");
+					System.out.print("Desired Rank: ");
+					while(!scan.hasNextInt()){
+						System.out.println("Please enter a valid rank (2-6)");
+						rankNum = scan.nextInt();
+						scan.nextLine();
+					}
+					rankNum = scan.nextInt();
+					scan.nextLine();
+				} 
+				
+				if(rankNum < currentPlayer.getRank()){					
+					System.out.println("Sorry, you cannot downgrade");
+					rankNum = 0;
+				} else if(rankNum == currentPlayer.getRank()){
+				
+					System.out.println("No upgrade");
+					chooseUpgrade = true;
+					
+				} else if(rankNum > currentPlayer.getRank()){
+				
+					boolean canUpgrade = upgradePlayerRank(rankNum, currentPlayer);
+					if(canUpgrade){
+						//Player has upgraded
+						chooseUpgrade = true;
+						return true;
+					} else{
+						//Player cannot upgrade to desired rank, reprompted
+						System.out.println("You cannot upgrade to that rank");
+						rankNum = 0;
+					}
+				}
+			}
+
+		} else {
+			System.out.println(
+					"You must be in the Casting Office to upgrade your rank. You are in "
+							+ currentRoom.getName() + ".");
+		} return false;
+	}
+	
+	private static boolean canTakeRole(Player currentPlayer, Room currentRoom, Scene currentScene) {
+		String listOfRoles = currentScene.listAvailableRoles(currentPlayer.getRank());
+		String listOfRoles2 = ((Set)currentRoom).listAvailableRoles(currentPlayer.getRank());
+		if (currentPlayer.getIsWorking()) {
+			System.out.println("You are already working "
+					+ currentPlayer.getCurrentRole().getName() + ".");
+		} else if(listOfRoles == "" && listOfRoles2 == ""){
+			System.out.println("Sorry, there are no roles to take here.");
+		} else {
+			takeRole(currentPlayer, ((Set) currentRoom), currentScene);
+			return true;
+		}
+		return false;
 	}
 
 	/*
