@@ -51,6 +51,7 @@ public class Deadwood {
 				do {
 					playerCount = 1;
 					while (playerCount <= players.length) {
+						// start player's turn
 						System.out.println("Player " + playerCount + "'s turn.");
 						Player currentPlayer = players[playerCount - 1];
 						checkPlayerChoices(currentPlayer);
@@ -63,6 +64,7 @@ public class Deadwood {
 							System.out.println("What would you like to do?");
 							System.out.print("> ");
 							input = scan.nextLine();
+							// wait for a valid command to be input
 							while (!validMove(input)) {
 								System.out.println("Please enter a valid command.");
 								checkPlayerChoices(currentPlayer);
@@ -82,7 +84,7 @@ public class Deadwood {
 								} else {
 									System.out.println("none");
 								}
-								// display location of all players and who is currently active
+							// display location of all players and who is currently active
 							} else if (input.equalsIgnoreCase("location")) {
 								System.out.println("You are in " + currentRoom.getName());
 								for (int i = 0; i < players.length; i++) {
@@ -90,65 +92,14 @@ public class Deadwood {
 										System.out.println("Player " + (i + 1) + " is in " + currentRoom.getName());
 									}
 								}
-								// displays available rooms and moves the player to the selected room
 							} else if (input.equalsIgnoreCase("end")) {
 								endTurn = true;
 							} else if (input.equalsIgnoreCase("quit")) {
 								endGame = true;
+							// move player to another room
 							} else if (input.equalsIgnoreCase("move")) {
 								if (!currentPlayer.getIsWorking()) {
-
-									String[] neighborStrings = currentRoom.getNeighbors();
-									Room[] neighbors = new Room[neighborStrings.length];
-
-									// convert strings into rooms
-									for (int i = 0; i < neighborStrings.length; i++) {
-										neighbors[i] = Board.lookUpRoom(neighborStrings[i]);
-									}
-
-									System.out.println("Available rooms: " + currentRoom.listNeighbors());
-									System.out.print("> ");
-									input = scan.nextLine(); // Should be nextLine for main street
-									boolean match = false;
-
-									for (Room neighbor : neighbors) {
-										if (input.equalsIgnoreCase(neighbor.getName().trim())) {
-											currentPlayer.move(neighbor);
-											currentRoom = currentPlayer.getLocation();
-											currentScene = ((Set) currentRoom).getSceneCard();
-											match = true;
-											boolean askRole = false;
-
-											System.out.println("You have moved to " + currentRoom.getName() + ".");
-
-											if (currentRoom instanceof Set) {
-												while (askRole == false) {
-													// prompt them to take a role at the new location
-													String response;
-													System.out
-															.print("Would you like to take a role? ('yes' or 'no'): ");
-													response = scan.nextLine();
-													if (response.equalsIgnoreCase("yes".trim())) {
-														takeRole(currentPlayer, ((Set) currentRoom), currentScene);
-														askRole = true;
-													} else if (response.equalsIgnoreCase("no".trim())) {
-														System.out.println("no role taken");
-														askRole = true;
-													}
-												}
-											}
-											endTurn = true;
-											break;
-										}
-									}
-									if (!match) {
-										System.out.println("That is not a place you can move to. Please try again.");
-									}
-								}
-								if (canMove(currentPlayer, currentRoom, currentScene)) {
-									validMove = true;
-								} else {
-									validMove = false;
+									movePlayer(currentPlayer);
 								}
 							} else if (input.equalsIgnoreCase("rehearse")) {
 								if (canRehearse(currentPlayer, currentScene)) {
@@ -208,6 +159,7 @@ public class Deadwood {
 											}
 										}
 									}
+
 									if (canUpgrade(currentPlayer, currentRoom)) {
 										validMove = true;
 									} else {
@@ -432,32 +384,39 @@ public class Deadwood {
 		// scan.close(); keep scanner open for next players turn
 	}
 
-	private static void movePlayer(Player player, Room currentRoom) {
-		String input;
+	private static boolean movePlayer(Player player) {
+		Room currentRoom = player.getLocation();
+		String input = "";
 		Scanner scan = new Scanner(System.in);
 		// list the rooms adjacent to player's current location
-		System.out.println("The available rooms are: " + currentRoom.listNeighbors() + ".");
-		System.out.print("Where would you like to go? ");
-		input = scan.next();
-		scan.nextLine();
-		for (String room : currentRoom.getNeighbors()) {
-			// match player's input to an available room and move them there
-			if (input.trim().equalsIgnoreCase(room)) {
-				player.move(Board.lookUpRoom(room));
-				System.out.println("Moved to " + room + ".");
-				currentRoom = player.getLocation();
+		boolean match = false;
+		do {
+			System.out.println("Available rooms: " + currentRoom.listNeighbors() + ".");
+			System.out.print("> ");
+			input = scan.nextLine();
+			for (String room : currentRoom.getNeighbors()) {
+				// match player's input to an available room and move them there
+				if (input.trim().equalsIgnoreCase(room)) {
+					player.move(Board.lookUpRoom(room));
+					System.out.println("Moved to " + room + ".");
+					currentRoom = player.getLocation();
+					match = true;
+				}
 			}
-		}
+		} while (!match);
 		if (currentRoom instanceof Set) {
 			// prompt them to take a role at the new location
-			System.out.print("Would you like to take a role? ");
-			input = scan.next();
-			scan.nextLine();
-			if (input.equalsIgnoreCase("yes".trim())) {
-				takeRole(player, ((Set) currentRoom), ((Set) currentRoom).getSceneCard());
-			}
+			do {
+				System.out.print("Would you like to take a role? (yes or no) ");
+				input = scan.next();
+				scan.nextLine();
+				if (input.equalsIgnoreCase("yes".trim())) {
+					takeRole(player, ((Set) currentRoom), ((Set) currentRoom).getSceneCard());
+				}
+			} while (!(input.equalsIgnoreCase("no".trim()) || !input.equalsIgnoreCase("yes".trim())));
 		}
 		scan.close();
+		return match;
 	}
 
 	private static boolean canMove(Player currentPlayer, Room currentRoom, Scene currentScene) {

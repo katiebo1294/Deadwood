@@ -2,7 +2,6 @@ import java.util.Arrays;
 
 import org.w3c.dom.Element;
 
-// TODO: maybe create subclasses for Set, Trailers, and Casting Office? 
 public class Room {
 	
 	protected String name;
@@ -34,10 +33,7 @@ public class Room {
 	
 	// Lists the name of each adjacent room in this.neighbors in a comma-separated list
 	public String listNeighbors() {
-		return Arrays.toString(this.neighbors);
-	}
-	
-	public String toString() {
-		return "name = '" + this.name + "'";
+		String result = Arrays.toString(this.neighbors);
+		return result.substring(1, result.length()-1);
 	}
 }
