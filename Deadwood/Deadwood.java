@@ -173,7 +173,7 @@ public class Deadwood {
 		System.out.println("You are able to:");
 		if (currentPlayer.getIsWorking()) {
 			Scene currentScene = ((Set) currentRoom).getSceneCard();
-			if (currentScene.getBudget() + currentPlayer.getNumPracticeChips() < 6) {
+			if (currentPlayer.getNumPracticeChips() +1 < currentScene.getBudget()) {
 				System.out.println("-> Rehearse");
 			}
 			System.out.println("-> Act");
@@ -269,6 +269,9 @@ public class Deadwood {
 					player.addCredits(2);
 				}
 			}
+			System.out.println("Scene: " +currentScene.getTitle());
+			System.out.println("# of shots remaining: " + currentRoom.getRemainingShots());
+			System.out.println("# of practice chips you have: " + player.getNumPracticeChips());
 			// if the last shot marker was removed, proceed to payout
 			if (currentRoom.getRemainingShots() == 0) {
 				if (currentScene.actorsOnCard()) {
@@ -437,7 +440,7 @@ public class Deadwood {
 
 	private static boolean canRehearse(Player currentPlayer, Scene currentScene) {
 		if (currentPlayer.getIsWorking()) {
-			if (currentScene.getBudget() + currentPlayer.getNumPracticeChips() < 6) {
+			if (currentPlayer.getNumPracticeChips() +1 < currentScene.getBudget()) {
 				currentPlayer.rehearse();
 				System.out.println("You now have " + currentPlayer.getNumPracticeChips() + " rehearsal chips.");
 				return true;
