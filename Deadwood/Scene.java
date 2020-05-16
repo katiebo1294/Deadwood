@@ -33,7 +33,7 @@ public class Scene {
 		return this.desc;
 	}
 	
-	public String getSceneNum(String sceneNum){
+	public String getSceneNum(){
         return this.sceneNum;
 	}
 	

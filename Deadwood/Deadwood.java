@@ -79,18 +79,18 @@ public class Deadwood {
 								System.out.println("Current location: " + player.getLocation().getName());
 								if (player.isWorking()) {
 									System.out.println("Current Role: " + player.getCurrentRole().getName()
-											+ " in scene " + currentScene.getTitle() + ";\nbudget of $"
-											+ currentScene.getBudget() + " billion and " + player.getNumPracticeChips()
-											+ " practice chips");
+											+ " in scene " + currentScene.getTitle() + ", scene " + currentScene.getSceneNum() + ".\n The budget is $"
+											+ currentScene.getBudget() + " billion and you have " + player.getNumPracticeChips()
+											+ " practice chips.");
 								}
 								validMove = false;
 								// display location of all players and who is currently active
 							} else if (input.equalsIgnoreCase("location".trim())) {
-								System.out.println("You are player " + playerCount);
+								System.out.println("You are player " + playerCount + ". You are in " + player.getLocation().getName() + ".");
 								for (int i = 0; i < players.length; i++) {
-									if (i != playerCount) {
+									if ((i+1) != playerCount) {
 										System.out.println(
-												"Player " + (i + 1) + " is in " + players[i].getLocation().getName());
+												"Player " + (i + 1) + " is in " + players[i].getLocation().getName() + ".");
 									}
 								}
 								validMove = false;
@@ -110,7 +110,7 @@ public class Deadwood {
 									validMove = true;
 								} else {
 									System.out.println(
-											"You are already working the role " + player.getCurrentRole().getName());
+											"You are already working the role " + player.getCurrentRole().getName() + ".");
 									validMove = false;
 								}
 							} else if (input.equalsIgnoreCase("rehearse")) {
@@ -192,6 +192,7 @@ public class Deadwood {
 			}
 		}
 		System.out.println("-> Location");
+		System.out.println("-> Info");
 		System.out.println("-> End");
 	}
 
@@ -279,9 +280,6 @@ public class Deadwood {
 					player.addCredits(2);
 				}
 			}
-			System.out.println("Scene: " + currentScene.getTitle());
-			System.out.println("# of shots remaining: " + currentRoom.getRemainingShots());
-			System.out.println("# of practice chips you have: " + player.getNumPracticeChips());
 			// if the last shot marker was removed, proceed to payout
 			if (currentRoom.getRemainingShots() == 0) {
 				System.out.println("That's a wrap!");
@@ -338,7 +336,7 @@ public class Deadwood {
 
 			System.out.println("The available off-the-card roles are: " + offCardRoles);
 			System.out.println("The available on-the-card roles are: " + onCardRoles);
-			System.out.print("Desired Role: ");
+			System.out.print("Desired Role (or cancel): ");
 			input = scan.nextLine();
 
 			if (offCardRoles.toUpperCase().contains(input.toUpperCase())) {
@@ -346,8 +344,8 @@ public class Deadwood {
 					if (input.equalsIgnoreCase(offCard.getName().trim())) {
 						player.setCurrentRole(offCard);
 						availableRole = true;
-						System.out.println("You are now working " + offCard.getName() + " in the scene "
-								+ currentScene.getTitle() + ".");
+						System.out.println("You are now working " + offCard.getName() + " in "
+								+ currentScene.getTitle() + ", scene " + currentScene.getSceneNum() + ".");
 					}
 				}
 
@@ -356,8 +354,8 @@ public class Deadwood {
 					if (input.equalsIgnoreCase(onCard.getName().trim())) {
 						player.setCurrentRole(onCard);
 						availableRole = true;
-						System.out.println("You are now working " + onCard.getName() + " in the scene "
-								+ currentScene.getTitle() + ".");
+						System.out.println("You are now working " + onCard.getName() + " in "
+								+ currentScene.getTitle() + ", scene " + currentScene.getSceneNum() + ".");
 						break;
 					}
 				}
@@ -454,11 +452,11 @@ public class Deadwood {
 			}
 
 			if (rankNum < player.getRank()) {
-				System.out.println("Sorry, you cannot downgrade");
+				System.out.println("Sorry, you cannot downgrade.");
 				rankNum = 0;
 			} else if (rankNum == player.getRank()) {
 
-				System.out.println("No upgrade");
+				System.out.println("No upgrade.");
 				chooseUpgrade = true;
 				return false;
 
@@ -466,12 +464,12 @@ public class Deadwood {
 				int oldRank = player.getRank();
 				boolean canUpgrade = upgradePlayerRank(rankNum, player);
 				if (canUpgrade) {
-					System.out.println("Upgraded from rank " + oldRank + " to rank " + player.getRank());
+					System.out.println("Upgraded from rank " + oldRank + " to rank " + player.getRank() + ".");
 					chooseUpgrade = true;
 					return true;
 				} else {
 					// Player cannot upgrade to desired rank, reprompted
-					System.out.println("You cannot upgrade to that rank");
+					System.out.println("Sorry, you don't have enough dollars or credits for that rank.");
 					rankNum = 0;
 					return false;
 				}
