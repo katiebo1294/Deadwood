@@ -65,7 +65,7 @@ public class Scene {
 		return result;
 	}
 	
-	public  Role lookUpRole(String desiredRole) {
+	public Role lookUpRole(String desiredRole) {
 		for(Role role : roles) {
 			if(getTitle().equalsIgnoreCase(desiredRole)) {
 				return role;

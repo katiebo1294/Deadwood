@@ -6,7 +6,6 @@ public class Role implements Comparable< Role > {
 	private String name;
 	private int rank; // 1-6
 	private String line;
-	private Location location; // scene name or room name
 	private Player actor;
 	
 	public Role(Node role) {
@@ -35,26 +34,9 @@ public class Role implements Comparable< Role > {
 		return this.name;
 	}
 	
-	public void setName(String name){
-        this.name = name;
-	}
-	
 	public String getLine() {
 		return this.line;
 	}
-	
-	public void setLine(String line){
-        this.line = line;
-	}
-	
-	public Location getLocation() {
-		return this.location;
-	}
-	
-	public void setLocation(Location location){
-        this.location = location;
-	}
-	
 	
 	public Player getActor() {
 		return this.actor;

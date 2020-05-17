@@ -1,4 +1,3 @@
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
 import java.util.Scanner;
@@ -97,7 +96,6 @@ public class Deadwood {
 							} else if (input.equalsIgnoreCase("end")) {
 								validMove = true;
 								endTurn = true;
-								validMove = true;
 							} else if (input.equalsIgnoreCase("quit")) {
 								validMove = true;
 								endGame = true;
@@ -106,11 +104,9 @@ public class Deadwood {
 							// move player to another room
 							} else if (input.equalsIgnoreCase("move")) {
 								if (!player.isWorking()) {
-									movePlayer(player);
-									validMove = true;
+									validMove = movePlayer(player);
 								} else {
-									System.out.println(
-											"You are already working the role " + player.getCurrentRole().getName() + ".");
+									System.out.println("You are already working a role here.");
 									validMove = false;
 								}
 							} else if (input.equalsIgnoreCase("rehearse")) {
@@ -120,10 +116,12 @@ public class Deadwood {
 									validMove = false;
 								}
 							} else if (input.equalsIgnoreCase("act")) {
-								if (canAct(player)) {
+								if (player.isWorking()) {
 									validMove = true;
+									actScene(player);
 								} else {
 									validMove = false;
+									System.out.println("You must be working a role in order to act.");
 								}
 							} else if (input.equalsIgnoreCase("upgrade")) {
 								if (canUpgrade(player)) {
@@ -132,11 +130,7 @@ public class Deadwood {
 									validMove = false;
 								}
 							} else if (input.equalsIgnoreCase("take role")) {
-								if (canTakeRole(player)) {
-									validMove = true;
-								} else {
-									validMove = false;
-								}
+								validMove = canTakeRole(player);
 							} else {
 								validMove = false;
 							}
@@ -163,6 +157,7 @@ public class Deadwood {
 		}
 	}
 
+	/* Checks if the user's input is a valid option */
 	private static boolean validMove(String input) {
 		String[] options = { "move", "act", "rehearse", "upgrade", "end", "take role", "quit", "info", "location" };
 		for (String s : options) {
@@ -173,6 +168,7 @@ public class Deadwood {
 		return false;
 	}
 
+	/* Displays the available choices for the player, based on their current status */
 	private static void checkPlayerChoices(Player player) {
 		Room currentRoom = player.getLocation();
 		System.out.println("You are able to:");
@@ -196,26 +192,23 @@ public class Deadwood {
 		System.out.println("-> End");
 	}
 
+	/* Ends the current day by replacing all scene cards with new ones and moving all players to Trailers */
 	private static void endDay(Player[] players, int dayCount) {
-		// end all current roles and move players to Trailers
+		// move players to Trailers
 		for (Player p : players) {
 			p.move(Board.lookUpRoom("Trailers"));
 			p.setCurrentRole(null);
 		}
-		// remove remaining scene card and deal the next 10 scene cards from the deck
+		// re-deal scene cards from the next 10 cards in the deck
 		int deckIndex = (dayCount - 1) * 10;
 		for (Room r : Board.getRooms()) {
 			if (r instanceof Set) {
-				((Set) r).setScene(null);
 				((Set) r).setScene(SCENES[deckIndex]);
 			}
 		}
 	}
 
-	/*
-	 * Sets up the game at the beginning of playthrough -- creates all the rooms and
-	 * scene cards and sets up the game board and players
-	 */
+	/* Creates the board, scene cards, and players based on the number of players specified */
 	private static void setUpGame(Player[] players) throws ParserConfigurationException {
 		int numPlayers = players.length;
 		System.out.println("Starting a new game with " + numPlayers + " players.");
@@ -225,13 +218,9 @@ public class Deadwood {
 		generatePlayers(players);
 		PLAYERS = players;
 		endDay(players, 1);
-		System.out.println(CastingOffice.displayPriceList());
 	}
 
-	/*
-	 * Creates the player objects -- if the number of players is not 4, takes care
-	 * of modifications to starting amounts/rank
-	 */
+	/* Creates players based on any modifications needed due to having a number of players other than 4 */
 	private static void generatePlayers(Player[] players) {
 		for (int i = 0; i < players.length; i++) {
 			// if 2 or 3 players, only play 3 days instead of 4
@@ -257,6 +246,7 @@ public class Deadwood {
 				+ " extra starting credits...");
 	}
 
+	/* Allows the given player to attempt to act in the scene they are currently in */
 	private static void actScene(Player player) {
 		int result;
 		int die = rollDie();
@@ -306,18 +296,8 @@ public class Deadwood {
 		}
 	}
 
-	private static boolean canAct(Player player) {
-		if (player.isWorking()) {
-			actScene(player);
-			return true;
-		} else {
-			System.out.println("You must be working a role in order to act.");
-		}
-		return false;
-	}
-
-	// sets for off the card, not on card.
-	private static void takeRole(Player player) {
+	/* Allow the player to take a role on the current set, if a role is available at or below their rank */
+	private static boolean takeRole(Player player) {
 		String input;
 		boolean availableRole = false;
 		Set currentRoom = (Set) player.getLocation();
@@ -327,21 +307,28 @@ public class Deadwood {
 		String onCardRoles = currentRoom.getSceneCard().listAvailableRoles(player.getRank());
 		String offCardRoles = currentRoom.listAvailableRoles(player.getRank());
 		if (currentRoom.getSceneCard() == null) {
-			System.out.println("Sorry, this scene has already been wrapped.");
+			System.out.println("Sorry, this scene has already wrapped.");
 		} else if (onCardRoles == "" && offCardRoles == "") {
 			System.out.println("Sorry, there are no roles to take.");
 			availableRole = true;
 		}
 		while (availableRole == false) {
-
-			System.out.println("The available off-the-card roles are: " + offCardRoles);
-			System.out.println("The available on-the-card roles are: " + onCardRoles);
+			if(offCardRoles.isEmpty()) {
+				System.out.println("There are no available off-the-card roles.");
+			} else {
+				System.out.println("The available off-the-card roles are: " + offCardRoles);
+			}
+			if(onCardRoles.isEmpty()) {
+				System.out.println("There are no available on-the-card roles.");
+			} else {
+				System.out.println("The available on-the-card roles are: " + onCardRoles);
+			}
 			System.out.print("Desired Role (or cancel): ");
 			input = scan.nextLine();
 
-			if (offCardRoles.toUpperCase().contains(input.toUpperCase())) {
+			if (offCardRoles.toUpperCase().contains(input.toUpperCase().trim())) {
 				for (Role offCard : currentRoom.getRoles()) {
-					if (input.equalsIgnoreCase(offCard.getName().trim())) {
+					if (input.trim().equalsIgnoreCase(offCard.getName())) {
 						player.setCurrentRole(offCard);
 						availableRole = true;
 						System.out.println("You are now working " + offCard.getName() + " in "
@@ -349,9 +336,9 @@ public class Deadwood {
 					}
 				}
 
-			} else if (onCardRoles.toUpperCase().contains(input.toUpperCase())) {
+			} else if (onCardRoles.toUpperCase().contains(input.toUpperCase().trim())) {
 				for (Role onCard : currentScene.getRoles()) {
-					if (input.equalsIgnoreCase(onCard.getName().trim())) {
+					if (input.trim().equalsIgnoreCase(onCard.getName())) {
 						player.setCurrentRole(onCard);
 						availableRole = true;
 						System.out.println("You are now working " + onCard.getName() + " in "
@@ -360,20 +347,22 @@ public class Deadwood {
 					}
 				}
 			} else if (input.trim().equalsIgnoreCase("cancel")) {
-				return;
+				return false;
 			} else {
 				System.out.println("Please enter a valid role.");
-			}
+			}	
 		}
+		return true;
 	}
 
+	/* Allows the player to move to a room adjacent to the room they are in */
 	private static boolean movePlayer(Player player) {
 		Room currentRoom = player.getLocation();
 		String input = "";
 		// list the rooms adjacent to player's current location
 		boolean match = false;
 		do {
-			System.out.println("Available rooms: " + currentRoom.listNeighbors() + ".");
+			System.out.println("Available rooms (or cancel): " + currentRoom.listNeighbors() + ".");
 			System.out.print("> ");
 			input = scan.nextLine();
 			for (String room : currentRoom.getNeighbors()) {
@@ -383,6 +372,8 @@ public class Deadwood {
 					player.move(Board.lookUpRoom(room));
 					currentRoom = player.getLocation();
 					match = true;
+				} else if(input.trim().equalsIgnoreCase("cancel")) {
+					return false;
 				}
 			}
 		} while (!match);
@@ -396,7 +387,7 @@ public class Deadwood {
 				}
 			} while (!(input.trim().equalsIgnoreCase("no") || input.trim().equalsIgnoreCase("yes")));
 		}
-		return match;
+		return true;
 	}
 
 	private static boolean canRehearse(Player player) {
@@ -431,7 +422,6 @@ public class Deadwood {
 		System.out.println("Current Rank: " + player.getRank());
 		System.out.println("You have: " + player.getNumDollars() + " Dollars");
 		System.out.println("          " + player.getNumCredits() + " Credits");
-
 		while (chooseUpgrade == false) {
 
 			// get wanted rank
@@ -495,8 +485,7 @@ public class Deadwood {
 			if (currentRoom.getSceneCard() == null) {
 				System.out.println("Sorry, this scene has already been wrapped.");
 			} else {
-				takeRole(player);
-				return true;
+				return takeRole(player);
 			}
 		}
 		return false;

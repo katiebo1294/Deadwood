@@ -4,7 +4,6 @@ public class Player {
 	private int numCredits;
 	private int numDollars;
 	private int rank;
-	private boolean isWorking; // if they are currently on a role
 	private Role currentRole;
 	private Room location;
 	private int numPracticeChips;
@@ -14,7 +13,6 @@ public class Player {
 		this.numCredits = numCredits;
 		this.numDollars = 0;
 		this.rank = rank;
-		this.isWorking = false;
 		this.numPracticeChips = 0;
 		this.location = Board.lookUpRoom("Trailers");
 	}
@@ -24,7 +22,6 @@ public class Player {
 		this.numCredits = 0;
 		this.numDollars = 0;
 		this.rank = 1;
-		this.isWorking = false;
 		this.location = Board.lookUpRoom("Trailers");
 	}
 	
@@ -100,10 +97,8 @@ public class Player {
 	
 	public void setCurrentRole(Role role) {
 		if(role != null) {
-			this.isWorking = true;
 			role.setActor(this);
 		} else {
-			this.isWorking = false;
 			this.numPracticeChips = 0;
 		}
 		this.currentRole = role;
