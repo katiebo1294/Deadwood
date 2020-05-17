@@ -204,6 +204,7 @@ public class Deadwood {
 		for (Room r : Board.getRooms()) {
 			if (r instanceof Set) {
 				((Set) r).setScene(SCENES[deckIndex]);
+				deckIndex++;
 			}
 		}
 	}
@@ -275,6 +276,11 @@ public class Deadwood {
 				System.out.println("That's a wrap!");
 				if (currentScene.actorsOnCard()) {
 					payout(currentRoom, currentScene);
+				}
+				for(Role r : currentScene.getRoles()) {
+					if(r.isWorked()) {
+						r.endRole();
+					}
 				}
 				currentRoom.removeSceneCard();
 				for (Role r : currentRoom.getRoles()) {
