@@ -54,6 +54,27 @@ public class Player {
 		return this.numPracticeChips;
 	}
 	
+	// returns a console output color based on the player's number
+	public String getColor(int playerCount) {
+		if(playerCount == 1) {
+			return Deadwood.BLACK;
+		} else if(playerCount == 2) {
+			return Deadwood.RED;
+		} else if(playerCount == 3) {
+			return Deadwood.GREEN;
+		} else if(playerCount == 4) {
+			return Deadwood.YELLOW;
+		} else if(playerCount == 5) {
+			return Deadwood.BLUE;
+		} else if(playerCount == 6) {
+			return Deadwood.PURPLE;
+		} else if(playerCount == 7) {
+			return Deadwood.CYAN;
+		} else {
+			return Deadwood.PURPLE_BRIGHT;
+		}
+	}
+	
 	/* Setters */
 	public void addCredits(int credits) {
 		this.numCredits += credits;
@@ -126,6 +147,5 @@ public class Player {
 	public void modifyCredits(int credits) {
 		this.numCredits = this.numCredits - credits;
 	}
-	
 	
 }

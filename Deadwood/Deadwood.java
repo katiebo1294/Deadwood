@@ -18,6 +18,17 @@ public class Deadwood {
 	public static Player[] PLAYERS;
 	public static Scanner scan = new Scanner(System.in);
 
+	// ANSI colors for console output
+    public static final String RESET = "\033[0m";
+    public static final String BLACK = "\033[0;30m";
+    public static final String RED = "\033[0;31m";
+    public static final String GREEN = "\033[0;32m";
+    public static final String YELLOW = "\033[0;33m";
+    public static final String BLUE = "\033[0;34m";
+    public static final String PURPLE = "\033[0;35m"; 
+    public static final String CYAN = "\033[0;36m";
+    public static final String PURPLE_BRIGHT = "\033[0;95m";
+
 	public static void main(String[] args) throws ParserConfigurationException {
 		String input = "";
 		int numPlayers = 0;
@@ -51,8 +62,8 @@ public class Deadwood {
 					playerCount = 1;
 					while (playerCount <= players.length) {
 						// start player's turn
-						System.out.println("Player " + playerCount + "'s turn.");
 						Player player = players[playerCount - 1];
+						System.out.println(player.getColor(playerCount) + "Player " + playerCount + "'s turn." + RESET);
 						checkPlayerChoices(player);
 						do {
 							Scene currentScene = null;
