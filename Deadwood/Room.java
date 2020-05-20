@@ -6,6 +6,7 @@ public class Room {
 	
 	protected String name;
 	protected String[] neighbors; //a list of adjacent rooms
+	protected int[] area; //x,y,h,w
 	
 	
 	public Room(Element room) {
@@ -20,6 +21,11 @@ public class Room {
 				neighbors[i] = neighborName;
 			}
 		}
+		this.area = new int[4];
+		this.area[0] = Integer.parseInt(((Element) room.getElementsByTagName("area").item(0)).getAttribute("x"));
+		this.area[1] = Integer.parseInt(((Element) room.getElementsByTagName("area").item(0)).getAttribute("y"));
+		this.area[2] = Integer.parseInt(((Element) room.getElementsByTagName("area").item(0)).getAttribute("h"));
+		this.area[3] = Integer.parseInt(((Element) room.getElementsByTagName("area").item(0)).getAttribute("w"));
 	}
 
 	/* Getters */

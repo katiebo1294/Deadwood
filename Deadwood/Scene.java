@@ -1,8 +1,11 @@
+import javax.swing.ImageIcon;
+
 import org.w3c.dom.Element;
 
 public class Scene {
 
 	private String title;
+	// TODO: image type?
 	private int budget;
 	private String sceneNum;
 	private String desc;
@@ -10,6 +13,7 @@ public class Scene {
 	
 	public Scene(Element card) {
 		this.title = card.getAttribute("name");
+		// TODO: get image from string name (ex: 01.png)
 		this.budget = Integer.parseInt(card.getAttribute("budget"));
 		this.sceneNum = ((Element) card.getElementsByTagName("scene").item(0)).getAttribute("number");
 		this.desc = ((Element) card.getElementsByTagName("scene").item(0)).getTextContent().trim();

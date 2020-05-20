@@ -5,12 +5,18 @@ public class Role implements Comparable< Role > {
 
 	private String name;
 	private int rank; // 1-6
+	private int[] area; //x, y, h, w
 	private String line;
 	private Player actor;
 	
 	public Role(Node role) {
 		this.name = ((Element) role).getAttribute("name");
 		this.rank = Integer.parseInt(((Element) role).getAttribute("level"));
+		this.area = new int[4];
+		this.area[0] = Integer.parseInt(((Element) ((Element) role).getElementsByTagName("area").item(0)).getAttribute("x"));
+		this.area[1] = Integer.parseInt(((Element) ((Element) role).getElementsByTagName("area").item(0)).getAttribute("y"));
+		this.area[2] = Integer.parseInt(((Element) ((Element) role).getElementsByTagName("area").item(0)).getAttribute("h"));
+		this.area[3] = Integer.parseInt(((Element) ((Element) role).getElementsByTagName("area").item(0)).getAttribute("w"));
 		this.line = "\"" + ((Element) role).getElementsByTagName("line").item(0).getTextContent() + "\"";
 	}
 	

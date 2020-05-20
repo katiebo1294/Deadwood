@@ -4,6 +4,7 @@ public class Set extends Room {
 
 	private Scene sceneCard;
 	private Role[] roles; //off-card
+	// TODO: how to handle shots ? they will have their own "area" field(s) as well
 	private int totalShots; //1-3
 	private int remainingShots;
 	
